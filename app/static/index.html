@@ -864,7 +864,6 @@ function submitDetailLead(){
   btn.innerText='Submitting...';
   btn.disabled=true;
   const v=selVendor;
-  const timeout=new Promise((_,reject)=>setTimeout(()=>reject('timeout'),8000));
   fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     name,phone,city:v.City||'',lang,budget,
     vendor:v.Vendor,make:v.Make,type:v.Type,
@@ -952,6 +951,8 @@ function submitLead(){
 
 setLang('en');
 document.querySelectorAll('.bchip').forEach(b=>b.classList.add('active'));
+// Keep server alive — ping every 10 mins to prevent Render cold start
+setInterval(()=>fetch('/health').catch(()=>{}), 600000);
 if(window.location.pathname==='/bounce'){
   try{
     document.getElementById('introOverlay').style.cssText='display:none!important';
