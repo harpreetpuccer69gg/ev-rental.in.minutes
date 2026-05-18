@@ -51,7 +51,9 @@ async def submit_lead(request: Request):
         log_lead(session, data.get("phone", ""))
         return JSONResponse({"status": "ok"})
     except Exception as e:
+        import traceback
         print(f"Sheet error: {e}")
+        print(traceback.format_exc())
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 
 
