@@ -40,7 +40,7 @@ def get_sheet():
     else:
         creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
     client = gspread.authorize(creds)
-    sheet = client.open_by_key(SHEET_ID).sheet1
+    sheet = client.open_by_key(SHEET_ID).worksheet("Leads ")
     if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
         sheet.insert_row(HEADERS, 1)
     _sheet_cache = sheet
