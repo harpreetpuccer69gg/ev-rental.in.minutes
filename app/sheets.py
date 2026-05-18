@@ -49,7 +49,7 @@ def log_lead(session: dict, phone: str):
         phone,
         session.get("city", ""),
         LANG_LABELS.get(session.get("lang", "en"), "English"),
-        BUDGET_LABELS.get(str(session.get("budget", "")), ""),
+        ", ".join([BUDGET_LABELS.get(str(b), "") for b in (session.get("budget") or [])]) if isinstance(session.get("budget"), list) else BUDGET_LABELS.get(str(session.get("budget", "")), ""),
         "",  # Range Preference - kept for column alignment
         chosen.get("Vendor", ""),
         chosen.get("Make", ""),
