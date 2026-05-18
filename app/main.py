@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import os
 import json
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,6 +14,23 @@ VENDORS_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "vendors.jso
 
 app = FastAPI(title="EV Assist Landing Page")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+# Pre-load sheet connection at startup so it's ready when leads come in
+_sheet = None
+def get_cached_sheet():
+    global _sheet
+    if _sheet is None:
+        from app.sheets import get_sheet
+        _sheet = get_sheet()
+    return _sheet
+
+@app.on_event("startup")
+async def startup_event():
+    try:
+        get_cached_sheet()
+        print("Google Sheet connection established at startup")
+    except Exception as e:
+        print(f"Startup sheet connection failed: {e}")
 
 
 @app.get("/vendors")
@@ -48,7 +66,10 @@ async def submit_lead(request: Request):
                 "Phone": data.get("spoc_phone", "")
             }
         }
-        log_lead(session, data.get("phone", ""))
+        # Run sheet write in thread so it fully completes before response
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, log_lead, session, data.get("phone", ""))
+        print(f"Lead logged: {data.get('name')} - {data.get('city')}")
         return JSONResponse({"status": "ok"})
     except Exception as e:
         import traceback

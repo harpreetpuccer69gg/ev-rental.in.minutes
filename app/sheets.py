@@ -27,7 +27,12 @@ LANG_LABELS = {
 }
 
 
+_sheet_cache = None
+
 def get_sheet():
+    global _sheet_cache
+    if _sheet_cache is not None:
+        return _sheet_cache
     creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
     if creds_json:
         info = json.loads(creds_json)
@@ -38,7 +43,8 @@ def get_sheet():
     sheet = client.open_by_key(SHEET_ID).sheet1
     if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
         sheet.insert_row(HEADERS, 1)
-    return sheet
+    _sheet_cache = sheet
+    return _sheet_cache
 
 
 def log_lead(session: dict, phone: str):
