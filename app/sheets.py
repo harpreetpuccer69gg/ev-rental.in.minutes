@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import json
 
@@ -26,6 +26,15 @@ LANG_LABELS = {
     "en": "English", "hi": "Hindi", "bn": "Bengali", "kn": "Kannada"
 }
 
+KNOWN_CITIES = {
+    "bangalore", "mumbai", "delhi ncr", "chennai", "kolkata", "hyderabad",
+    "pune", "ahmedabad", "jaipur", "lucknow", "guwahati", "patna",
+    "coimbatore", "surat", "vadodara", "bhopal", "indore", "kochi",
+    "madurai", "zirakpur"
+}
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
 
 _sheet_cache = None
 
@@ -50,10 +59,10 @@ def get_sheet():
 def log_lead(session: dict, phone: str):
     chosen = session.get("chosen", {})
     row = [
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST"),
         session.get("name", ""),
         phone,
-        session.get("city", ""),
+        session.get("city", "") if session.get("city", "").strip().lower() in KNOWN_CITIES else f"Others: {session.get('city', '')}",
         LANG_LABELS.get(session.get("lang", "en"), "English"),
         ", ".join([BUDGET_LABELS.get(str(b), "") for b in (session.get("budget") or [])]) if isinstance(session.get("budget"), list) else BUDGET_LABELS.get(str(session.get("budget", "")), ""),
         "",  # Range Preference - kept for column alignment
