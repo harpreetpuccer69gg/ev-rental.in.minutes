@@ -986,5 +986,39 @@
         "Phone": null,
         "Email": null,
         "Image": "/static/images/yulu.png"
+    },
+    {
+        "City": "Surat",
+        "Vendor": "Evify",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Hero NYX",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1120-1470",
+        "Range (Km)": "80",
+        "Security Deposit": "2000",
+        "Refundable Deposit": "1000",
+        "Charging/Swap": "Charging",
+        "SPOC": "Himanshu Vaghela",
+        "Phone": "96011 33973",
+        "Email": null,
+        "Image": "/static/images/evify_hero_nyx.jpeg"
+    },
+    {
+        "City": "Vadodara",
+        "Vendor": "Evify",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Hero NYX",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1120-1470",
+        "Range (Km)": "80",
+        "Security Deposit": "2000",
+        "Refundable Deposit": "1000",
+        "Charging/Swap": "Charging",
+        "SPOC": "Ketan More",
+        "Phone": "7048509951",
+        "Email": null,
+        "Image": "/static/images/evify_hero_nyx.jpeg"
     }
 ]
