@@ -78,6 +78,6 @@ def log_lead(session: dict, phone: str):
         chosen.get("Refundable Deposit", ""),
         chosen.get("SPOC", ""),
         chosen.get("Phone", ""),
-        "New Lead"  # Status — Apps Script will update to Pending after transfer
+        "Pending"
     ]
     get_sheet().append_row(row)
