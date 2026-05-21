@@ -14,7 +14,7 @@
         "SPOC": "Surojit",
         "Phone": "9175032903",
         "Email": null,
-        "Image": "/static/images/nexzu.png"
+        "Image": "/static/images/nexzu_new.png"
     },
     {
         "City": "Mumbai",
@@ -31,7 +31,7 @@
         "SPOC": "Pravin",
         "Phone": "8806503720",
         "Email": null,
-        "Image": "/static/images/nexzu.png"
+        "Image": "/static/images/nexzu_new.png"
     },
     {
         "City": "Chennai",
@@ -48,7 +48,7 @@
         "SPOC": "Sunil",
         "Phone": "9751091494",
         "Email": null,
-        "Image": "/static/images/nexzu.png"
+        "Image": "/static/images/nexzu_new.png"
     },
     {
         "City": "Kolkata",
@@ -108,7 +108,7 @@
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "Volt Up Bike",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1690",
+        "Approx Rental/Week": "1390",
         "Range (Km)": "70",
         "Security Deposit": "500",
         "Refundable Deposit": null,
@@ -116,7 +116,41 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/voltup.png"
+        "Image": "/static/images/voltup_new.jpeg"
+    },
+    {
+        "City": "Gurugram",
+        "Vendor": "Volt Up",
+        "Status": "Live",
+        "Battery Type": "Sun Mobility/Indofast Swap",
+        "Make": "Volt Up Bike",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1390",
+        "Range (Km)": "70",
+        "Security Deposit": "500",
+        "Refundable Deposit": null,
+        "Charging/Swap": "Swap",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/voltup_new.jpeg"
+    },
+    {
+        "City": "Noida",
+        "Vendor": "Volt Up",
+        "Status": "Live",
+        "Battery Type": "Sun Mobility/Indofast Swap",
+        "Make": "Volt Up Bike",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1390",
+        "Range (Km)": "70",
+        "Security Deposit": "500",
+        "Refundable Deposit": null,
+        "Charging/Swap": "Swap",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/voltup_new.jpeg"
     },
     {
         "City": "Mumbai",
@@ -125,7 +159,7 @@
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "Volt Up Bike",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1790",
+        "Approx Rental/Week": "1390",
         "Range (Km)": "70",
         "Security Deposit": "500",
         "Refundable Deposit": null,
@@ -133,7 +167,7 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/voltup.png"
+        "Image": "/static/images/voltup_new.jpeg"
     },
     {
         "City": "Pune",
@@ -142,7 +176,7 @@
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "Volt Up Bike",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1790",
+        "Approx Rental/Week": "1390",
         "Range (Km)": "70",
         "Security Deposit": "500",
         "Refundable Deposit": null,
@@ -150,7 +184,7 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/voltup.png"
+        "Image": "/static/images/voltup_new.jpeg"
     },
     {
         "City": "Jaipur",
@@ -159,7 +193,7 @@
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "Volt Up Bike",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1690",
+        "Approx Rental/Week": "1390",
         "Range (Km)": "70",
         "Security Deposit": "500",
         "Refundable Deposit": null,
@@ -167,7 +201,41 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/voltup.png"
+        "Image": "/static/images/voltup_new.jpeg"
+    },
+    {
+        "City": "Prayagraj",
+        "Vendor": "Volt Up",
+        "Status": "Live",
+        "Battery Type": "Sun Mobility/Indofast Swap",
+        "Make": "Volt Up Bike",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1390",
+        "Range (Km)": "70",
+        "Security Deposit": "500",
+        "Refundable Deposit": null,
+        "Charging/Swap": "Swap",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/voltup_new.jpeg"
+    },
+    {
+        "City": "Indore",
+        "Vendor": "Volt Up",
+        "Status": "Live",
+        "Battery Type": "Sun Mobility/Indofast Swap",
+        "Make": "Volt Up Bike",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1390",
+        "Range (Km)": "70",
+        "Security Deposit": "500",
+        "Refundable Deposit": null,
+        "Charging/Swap": "Swap",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/voltup_new.jpeg"
     },
     {
         "City": "Bangalore",
@@ -499,9 +567,9 @@
         "Battery Type": "Swap/Charge",
         "Make": "Bounce/TVS/Ola",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1500",
+        "Approx Rental/Week": "1995",
         "Range (Km)": "100",
-        "Security Deposit": "500",
+        "Security Deposit": "2000",
         "Refundable Deposit": null,
         "Charging/Swap": null,
         "SPOC": "Surendra",
@@ -516,9 +584,9 @@
         "Battery Type": "Swap",
         "Make": "Bounce/TVS/Ola",
         "Type": "Hi-Speed",
-        "Approx Rental/Week": "1400",
+        "Approx Rental/Week": "1995",
         "Range (Km)": "70",
-        "Security Deposit": "500",
+        "Security Deposit": "2000",
         "Refundable Deposit": null,
         "Charging/Swap": null,
         "SPOC": "Sriram",
