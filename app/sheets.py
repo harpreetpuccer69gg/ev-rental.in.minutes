@@ -41,7 +41,11 @@ _sheet_cache = None
 def get_sheet():
     global _sheet_cache
     if _sheet_cache is not None:
-        return _sheet_cache
+        try:
+            _sheet_cache.cell(1, 1)  # test connection is still alive
+            return _sheet_cache
+        except Exception:
+            _sheet_cache = None  # reset if stale
     creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
     if creds_json:
         info = json.loads(creds_json)
@@ -74,6 +78,6 @@ def log_lead(session: dict, phone: str):
         chosen.get("Refundable Deposit", ""),
         chosen.get("SPOC", ""),
         chosen.get("Phone", ""),
-        "New Lead"
+        "New Lead"  # Status — Apps Script will update to Pending after transfer
     ]
     get_sheet().append_row(row)
