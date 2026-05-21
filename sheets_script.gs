@@ -79,7 +79,7 @@ function onLeadSubmit() {
   }
 
   // Helper: Format and send the summary email
-  function sendSummaryEmail(vendorName, emailAddresses, cityCountMap) {
+  function sendSummaryEmail(vendorName, emailAddresses, cityCountMap, sheetLink) {
     if (!emailAddresses) return false;
     const emails = emailAddresses.split(',').map(e => e.trim()).filter(e => e);
     if (emails.length === 0) return false;
@@ -95,10 +95,12 @@ function onLeadSubmit() {
       cityLines += `  - ${city}: ${cityCountMap[city]} lead(s)\n`;
     });
 
+    const sheetLine = sheetLink ? '\nView your leads sheet here:\n' + sheetLink + '\n' : '';
+
     const body = `Hi ${vendorName} Team,
 
 You have received ${total} new lead(s) in the last hour from Flipkart Minutes EV Assist.
-
+${sheetLine}
 ----------------------------------------
 LEADS SUMMARY (City-wise)
 ----------------------------------------
@@ -106,7 +108,7 @@ ${cityLines}
 Total New Leads : ${total}
 ----------------------------------------
 
-Please check your sheet for full rider details and contact them within 24 hours.
+Please update the Status column after contacting each rider within 24 hours.
 
 - Flipkart Minutes EV Assist
 https://ev-rental-in-minutes.onrender.com`;
@@ -207,15 +209,17 @@ https://ev-rental-in-minutes.onrender.com`;
     if (!vendorBatch[vKey]) {
       let vEmail = '';
       let vDisplayName = vendorName;
+      let vSheetLink = '';
       for (let j = 1; j < mapData.length; j++) {
         if (normalizeVendor(mapData[j][0]) === vKey) {
           vEmail = mapData[j][2].toString().trim();
           vDisplayName = mapData[j][0].toString().trim();
+          vSheetLink = (mapData[j][4] || '').toString().trim();
           break;
         }
       }
       if (!vEmail) continue;
-      vendorBatch[vKey] = { name: vDisplayName, email: vEmail, cityCount: {}, rowIndices: [] };
+      vendorBatch[vKey] = { name: vDisplayName, email: vEmail, sheetLink: vSheetLink, cityCount: {}, rowIndices: [] };
     }
 
     vendorBatch[vKey].cityCount[city] = (vendorBatch[vKey].cityCount[city] || 0) + 1;
@@ -223,8 +227,8 @@ https://ev-rental-in-minutes.onrender.com`;
   }
 
   for (const vKey in vendorBatch) {
-    const { name, email, cityCount, rowIndices } = vendorBatch[vKey];
-    if (sendSummaryEmail(name, email, cityCount)) {
+    const { name, email, sheetLink, cityCount, rowIndices } = vendorBatch[vKey];
+    if (sendSummaryEmail(name, email, cityCount, sheetLink)) {
       rowIndices.forEach(rowNum => {
         leadsSheet.getRange(rowNum, emailCol + 1).setValue('YES');
       });
