@@ -68,23 +68,6 @@
         "Image": "/static/images/motovolt.png"
     },
     {
-        "City": "Patna",
-        "Vendor": "Motovolt",
-        "Status": "Live",
-        "Battery Type": "Home/Store Charging",
-        "Make": "Hum Cycles",
-        "Type": "E-Cycle",
-        "Approx Rental/Week": "800",
-        "Range (Km)": "80",
-        "Security Deposit": "1500",
-        "Refundable Deposit": null,
-        "Charging/Swap": "Charging",
-        "SPOC": null,
-        "Phone": null,
-        "Email": null,
-        "Image": "/static/images/motovolt.png"
-    },
-    {
         "City": "Guwahati",
         "Vendor": "Motovolt",
         "Status": "In Discussion",
