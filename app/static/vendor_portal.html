@@ -246,32 +246,42 @@ async function loadRequests() {
   area.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:20px;">Requests will appear here after submission.</div>';
 }
 
+function safeSet(id, prop, val) {
+  const el = document.getElementById(id);
+  if (el) el[prop] = val;
+}
+function safeStyle(id, prop, val) {
+  const el = document.getElementById(id);
+  if (el) el.style[prop] = val;
+}
+
 function openAddModal() {
-  document.getElementById('modalTitle').innerText = 'Add New EV Listing';
-  document.getElementById('fEditMode').value = 'new';
-  document.getElementById('fCity').value = '';
-  document.getElementById('fMake').value = '';
-  document.getElementById('fRent').value = '';
-  document.getElementById('fRange').value = '';
-  document.getElementById('fDeposit').value = '';
-  document.getElementById('fRefund').value = '';
-  document.getElementById('fSpoc').value = '';
-  document.getElementById('fSpocPhone').value = '';
-  document.getElementById('fImageUrl').value = '';
-  document.getElementById('fImageUrl2').value = '';
-  document.getElementById('fImageUrl3').value = '';
-  document.getElementById('fVideoUrl').value = '';
+  safeSet('modalTitle','innerText','Add New EV Listing');
+  safeSet('fEditMode','value','new');
+  safeSet('fCity','value','');
+  safeSet('fMake','value','');
+  safeSet('fRent','value','');
+  safeSet('fRange','value','');
+  safeSet('fDeposit','value','');
+  safeSet('fRefund','value','');
+  safeSet('fSpoc','value','');
+  safeSet('fSpocPhone','value','');
+  safeSet('fImageUrl','value','');
+  safeSet('fImageUrl2','value','');
+  safeSet('fImageUrl3','value','');
+  safeSet('fVideoUrl','value','');
   [1,2,3].forEach(n => {
-    document.getElementById('imgPreview'+n).style.display='none';
-    document.getElementById('img'+n+'Icon').style.display='block';
-    document.getElementById('fImage'+n).value='';
+    safeStyle('imgPreview'+n,'display','none');
+    safeStyle('img'+n+'Icon','display','block');
+    safeSet('fImage'+n,'value','');
   });
-  document.getElementById('videoPreview').style.display='none';
-  document.getElementById('videoName').innerText='Click to upload video';
-  document.getElementById('fVideo').value='';
-  document.getElementById('imgError').style.display='none';
-  document.getElementById('modalMsg').className = 'msg';
-  document.getElementById('editModal').classList.add('show');
+  safeStyle('videoPreview','display','none');
+  safeSet('videoName','innerText','Click to upload video');
+  safeSet('fVideo','value','');
+  safeStyle('imgError','display','none');
+  safeSet('modalMsg','className','msg');
+  const modal = document.getElementById('editModal');
+  if (modal) modal.classList.add('show');
 }
 
 function openEditModal(vStr) {
@@ -302,8 +312,9 @@ function openEditModal(vStr) {
   });
   if (v.Video) { document.getElementById('videoPreview').src=v.Video; document.getElementById('videoPreview').style.display='block'; document.getElementById('videoName').innerText='Video uploaded'; }
   else { document.getElementById('videoPreview').style.display='none'; document.getElementById('videoName').innerText='Click to upload video'; }
-  document.getElementById('modalMsg').className = 'msg';
-  document.getElementById('editModal').classList.add('show');
+  safeSet('modalMsg','className','msg');
+  const modal = document.getElementById('editModal');
+  if (modal) modal.classList.add('show');
 }
 
 function closeModal() { document.getElementById('editModal').classList.remove('show'); }

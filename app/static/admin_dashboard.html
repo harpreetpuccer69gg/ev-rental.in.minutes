@@ -97,6 +97,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     <div class="tabs">
       <button class="tab active" onclick="switchTab('changes')">Change Requests</button>
       <button class="tab" onclick="switchTab('vendors')">New Vendor Approvals</button>
+      <button class="tab" onclick="switchTab('manage')">Manage Vendors</button>
       <button class="tab" onclick="switchTab('history')">History</button>
     </div>
 
@@ -113,6 +114,17 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     <!-- History -->
     <div id="historyTab" style="display:none;">
       <div id="historyArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+    </div>
+
+    <!-- Manage Vendors -->
+    <div id="manageTab" style="display:none;">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="card-title" style="margin-bottom:0;">Live Vendors</div>
+          <input id="vendorSearch" placeholder="Search vendor..." style="border:1.5px solid #e0e0e0;border-radius:8px;padding:8px 12px;font-size:13px;" oninput="filterVendors()"/>
+        </div>
+        <div id="manageArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -248,13 +260,55 @@ async function reviewVendor(id, action) {
   loadPending();
 }
 
+let allVendors = [];
+
 function switchTab(tab) {
-  ['changes','vendors','history'].forEach(t => {
+  ['changes','vendors','manage','history'].forEach(t => {
     document.getElementById(t+'Tab').style.display = t === tab ? 'block' : 'none';
   });
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['changes','vendors','history'][i] === tab);
+    t.classList.toggle('active', ['changes','vendors','manage','history'][i] === tab);
   });
+  if (tab === 'manage') loadVendors();
+}
+
+async function loadVendors() {
+  const res = await fetch('/vendors');
+  allVendors = await res.json();
+  renderVendors(allVendors);
+}
+
+function filterVendors() {
+  const q = document.getElementById('vendorSearch').value.toLowerCase();
+  renderVendors(allVendors.filter(v => (v.Vendor||'').toLowerCase().includes(q) || (v.City||'').toLowerCase().includes(q)));
+}
+
+function renderVendors(list) {
+  const area = document.getElementById('manageArea');
+  if (!list.length) { area.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:20px;">No vendors found.</div>'; return; }
+  const grouped = {};
+  list.forEach(v => { if (!grouped[v.Vendor]) grouped[v.Vendor] = []; grouped[v.Vendor].push(v); });
+  area.innerHTML = Object.keys(grouped).sort().map(vendor => `
+    <div style="background:#f8faff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #e3eaff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:14px;font-weight:800;color:#002d62;">${vendor}</div>
+        <span style="background:#e8f5e9;color:#2e7d32;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;">${grouped[vendor].length} listing(s)</span>
+      </div>
+      ${grouped[vendor].map(v => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #e0e0e0;flex-wrap:wrap;gap:6px;">
+          <div style="font-size:12px;color:#424242;">${v.City} | ${v.Make||''} | ${v.Type||''} | ₹${v['Approx Rental/Week']||'N/A'}/week</div>
+          <button onclick='removeVendorEntry(${JSON.stringify(JSON.stringify(v))})' style="background:#ffebee;color:#c62828;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">Remove</button>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+async function removeVendorEntry(vStr) {
+  const v = JSON.parse(vStr);
+  if (!confirm(`Remove ${v.Vendor} - ${v.Make} in ${v.City}?`)) return;
+  const res = await fetch('/admin/remove-vendor', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token: adminToken, vendor: v.Vendor, city: v.City, make: v.Make})});
+  const d = await res.json();
+  alert(d.msg || (d.ok ? 'Removed' : 'Error'));
+  if (d.ok) loadVendors();
 }
 
 function doLogout() {
