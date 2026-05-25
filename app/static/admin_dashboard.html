@@ -5,75 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard - EV Assist</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
-.header{background:#002d62;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
-.header h1{color:#ffd600;font-size:18px;font-weight:900;}
-.logout-btn{background:#ffd600;color:#002d62;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-.main{max-width:800px;margin:0 auto;padding:20px 16px 60px;}
-.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
-.card-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:16px;}
-.inp{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px;font-weight:500;}
-.inp:focus{outline:none;border-color:#002d62;}
-.btn{width:100%;background:#ffd600;color:#002d62;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;}
-.btn:hover{background:#ffca00;}
-.msg{padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;}
-.msg.success{background:#e8f5e9;color:#2e7d32;display:block;}
-.msg.error{background:#ffebee;color:#c62828;display:block;}
-.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
-.tab{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#002d62;border:1.5px solid #e0e0e0;}
-.tab.active{background:#002d62;color:#ffd600;border-color:#002d62;}
-.change-card{background:#f8faff;border-radius:12px;padding:16px;margin-bottom:12px;border:1.5px solid #e3eaff;}
-.change-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
-.change-vendor{font-size:14px;font-weight:800;color:#002d62;}
-.change-type{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;}
-.type-edit{background:#e3f2fd;color:#1565c0;}
-.type-new{background:#e8f5e9;color:#2e7d32;}
-.type-delete{background:#ffebee;color:#c62828;}
-.change-meta{font-size:12px;color:#757575;margin-bottom:10px;}
-.change-details{background:#fff;border-radius:8px;padding:12px;font-size:12px;margin-bottom:12px;border:1px solid #e0e0e0;}
+body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#002d62 0%,#003d8f 100%);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,45,98,0.3);}
+.header h1{color:#ffd600;font-size:17px;font-weight:800;letter-spacing:0.3px;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.admin-badge{background:rgba(255,214,0,0.15);color:#ffd600;border:1px solid rgba(255,214,0,0.3);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;}
+.logout-btn{background:#ffd600;color:#002d62;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.logout-btn:hover{background:#ffe033;transform:translateY(-1px);}
+
+/* MAIN */
+.main{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
+
+/* CARDS */
+.card{background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);}
+.card-title{font-size:15px;font-weight:800;color:#002d62;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+
+/* INPUTS */
+.inp{width:100%;border:1.5px solid #e8eaf0;border-radius:10px;padding:11px 14px;font-size:14px;margin-bottom:14px;font-weight:500;background:#fafbfc;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.inp:focus{outline:none;border-color:#002d62;background:#fff;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
+.btn{width:100%;background:linear-gradient(135deg,#ffd600,#ffca00);color:#002d62;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,214,0,0.4);}
+
+/* MESSAGES */
+.msg{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none;border-left:4px solid;}
+.msg.success{background:#f0fdf4;color:#166534;border-color:#22c55e;display:block;}
+.msg.error{background:#fef2f2;color:#991b1b;border-color:#ef4444;display:block;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+.stat-box{background:#fff;border-radius:16px;padding:20px 16px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);position:relative;overflow:hidden;transition:transform 0.2s;}
+.stat-box:hover{transform:translateY(-2px);}
+.stat-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-box:nth-child(1)::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+.stat-box:nth-child(2)::before{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.stat-box:nth-child(3)::before{background:linear-gradient(90deg,#10b981,#34d399);}
+.stat-num{font-size:32px;font-weight:900;color:#002d62;line-height:1;margin-bottom:6px;}
+.stat-lbl{font-size:12px;color:#6b7280;font-weight:500;}
+.stat-icon{font-size:22px;margin-bottom:8px;}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap;background:#fff;padding:6px;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.tab{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#6b7280;border:none;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.tab:hover{background:#f3f4f6;color:#002d62;}
+.tab.active{background:#002d62;color:#ffd600;box-shadow:0 2px 8px rgba(0,45,98,0.25);}
+
+/* CHANGE CARDS */
+.change-card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.04);transition:box-shadow 0.2s;}
+.change-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.change-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.change-vendor{font-size:15px;font-weight:800;color:#002d62;}
+.change-meta{font-size:11px;color:#9ca3af;margin-top:2px;}
+.change-type{font-size:11px;font-weight:700;padding:4px 12px;border-radius:999px;}
+.type-edit{background:#eff6ff;color:#1d4ed8;}
+.type-new{background:#f0fdf4;color:#166534;}
+.type-delete{background:#fef2f2;color:#991b1b;}
+.change-details{background:#f8fafc;border-radius:10px;padding:14px;font-size:12px;margin-bottom:14px;border:1px solid #e8eaf0;}
 .change-details table{width:100%;border-collapse:collapse;}
-.change-details td{padding:4px 8px;border-bottom:1px solid #f5f5f5;}
-.change-details td:first-child{font-weight:700;color:#002d62;width:40%;}
-.action-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.approve-btn{background:#002d62;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;}
-.reject-btn{background:#ffebee;color:#c62828;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;}
-.note-inp{flex:1;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;font-size:13px;min-width:150px;}
-.status-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
-.status-pending{background:#fff8e1;color:#f57f17;}
-.status-approved{background:#e8f5e9;color:#2e7d32;}
-.status-rejected{background:#ffebee;color:#c62828;}
-.vendor-card{background:#f8faff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #e3eaff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.vendor-info{font-size:13px;}
+.change-details td{padding:5px 8px;border-bottom:1px solid #f1f5f9;}
+.change-details td:first-child{font-weight:700;color:#374151;width:40%;}
+.change-details tr:last-child td{border-bottom:none;}
+.action-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f1f5f9;}
+.approve-btn{background:#002d62;color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.approve-btn:hover{background:#003d8f;transform:translateY(-1px);}
+.reject-btn{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.reject-btn:hover{background:#fee2e2;}
+.note-inp{flex:1;border:1.5px solid #e8eaf0;border-radius:8px;padding:9px 12px;font-size:13px;min-width:150px;font-family:'Inter',sans-serif;background:#fafbfc;}
+.note-inp:focus{outline:none;border-color:#002d62;}
+
+/* BADGES */
+.status-badge{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;}
+.status-pending{background:#fffbeb;color:#92400e;}
+.status-approved{background:#f0fdf4;color:#166534;}
+.status-rejected{background:#fef2f2;color:#991b1b;}
+
+/* VENDOR CARDS */
+.vendor-card{background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8eaf0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;transition:box-shadow 0.2s;}
+.vendor-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08);}
 .vendor-name{font-weight:800;color:#002d62;font-size:14px;}
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
-.stat-box{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-.stat-num{font-size:28px;font-weight:900;color:#002d62;}
-.stat-lbl{font-size:12px;color:#757575;margin-top:4px;}
+
+/* MODAL */
+.add-vendor-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:16px;}
+.add-vendor-modal.show{display:flex;}
+.add-vendor-box{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.av-title{font-size:17px;font-weight:800;color:#002d62;}
+.av-label{font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;display:block;}
+.av-inp{width:100%;border:1.5px solid #e8eaf0;border-radius:9px;padding:10px 13px;font-size:13px;font-family:'Inter',sans-serif;background:#fafbfc;transition:all 0.2s;margin-bottom:0;}
+.av-inp:focus{outline:none;border-color:#002d62;background:#fff;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
+.av-btn{width:100%;background:linear-gradient(135deg,#002d62,#003d8f);color:#ffd600;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-top:20px;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.av-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,45,98,0.3);}
+.av-section{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.8px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(135deg,#001f4d 0%,#002d62 50%,#003d8f 100%);}
+.login-hero{padding:48px 20px 32px;text-align:center;}
+.login-card{background:#fff;border-radius:20px;padding:32px;max-width:400px;margin:0 auto 40px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-title{font-size:20px;font-weight:800;color:#002d62;margin-bottom:6px;}
+.login-sub{font-size:13px;color:#6b7280;margin-bottom:24px;}
+.inp-label{font-size:12px;font-weight:700;color:#374151;margin-bottom:5px;display:block;}
+.search-box{border:1.5px solid #e8eaf0;border-radius:10px;padding:9px 14px;font-size:13px;font-family:'Inter',sans-serif;background:#fafbfc;transition:all 0.2s;}
+.search-box:focus{outline:none;border-color:#002d62;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="loginSection">
-  <div style="background:#002d62;padding:30px 20px;text-align:center;">
-    <img src="/static/images/logo.png" style="height:48px;margin-bottom:12px;"/>
-    <div style="color:#ffd600;font-size:20px;font-weight:900;">Admin Dashboard</div>
-    <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px;">Flipkart Minutes EV Assist</div>
-  </div>
-  <div style="max-width:380px;margin:24px auto;padding:0 16px;">
-    <div class="card">
-      <div class="card-title">Admin Login</div>
-      <div id="loginMsg" class="msg"></div>
-      <label style="font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;">Email</label>
-      <input class="inp" id="adminEmail" type="email" placeholder="your@flipkart.com"/>
-      <label style="font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;">Password</label>
-      <div style="position:relative;">
-        <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
-        <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
+  <div class="login-wrap">
+    <div class="login-hero">
+      <img src="/static/images/logo.png" style="height:52px;margin-bottom:16px;filter:brightness(0) invert(1);"/>
+      <div style="color:#ffd600;font-size:22px;font-weight:900;margin-bottom:6px;">Admin Dashboard</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:13px;">Flipkart Minutes · EV Assist</div>
+    </div>
+    <div style="padding:0 16px;">
+      <div class="login-card">
+        <div class="login-title">Welcome back 👋</div>
+        <div class="login-sub">Sign in to manage EV listings</div>
+        <div id="loginMsg" class="msg"></div>
+        <label class="inp-label">Email Address</label>
+        <input class="inp" id="adminEmail" type="email" placeholder="your@flipkart.com" style="margin-bottom:14px;"/>
+        <label class="inp-label">Password</label>
+        <div style="position:relative;margin-bottom:20px;">
+          <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
+          <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
+        </div>
+        <button class="btn" id="loginBtn" onclick="doAdminLogin()">Sign In →</button>
       </div>
-      <div style="height:12px;"></div>
-      <button class="btn" id="loginBtn" onclick="doAdminLogin()">Login →</button>
     </div>
   </div>
 </div>
@@ -81,39 +141,42 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
 <!-- DASHBOARD -->
 <div id="dashSection" style="display:none;">
   <div class="header">
-    <h1>Admin Dashboard — EV Assist</h1>
-    <button class="logout-btn" onclick="doLogout()">Logout</button>
+    <h1>⚡ EV Assist · Admin</h1>
+    <div class="header-right">
+      <span class="admin-badge">🔐 Admin</span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
   </div>
 
   <div class="main">
     <!-- Stats -->
     <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending Changes</div></div>
-      <div class="stat-box"><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Pending Vendors</div></div>
-      <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Requests</div></div>
+      <div class="stat-box"><div class="stat-icon">⏳</div><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending Changes</div></div>
+      <div class="stat-box"><div class="stat-icon">🏪</div><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Pending Vendors</div></div>
+      <div class="stat-box"><div class="stat-icon">📋</div><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Requests</div></div>
     </div>
 
     <!-- Tabs -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('changes')">Change Requests</button>
-      <button class="tab" onclick="switchTab('vendors')">New Vendor Approvals</button>
-      <button class="tab" onclick="switchTab('manage')">Manage Vendors</button>
-      <button class="tab" onclick="switchTab('history')">History</button>
+      <button class="tab active" onclick="switchTab('changes')">⏳ Change Requests</button>
+      <button class="tab" onclick="switchTab('vendors')">🏪 Vendor Approvals</button>
+      <button class="tab" onclick="switchTab('manage')">⚙️ Manage Vendors</button>
+      <button class="tab" onclick="switchTab('history')">📜 History</button>
     </div>
 
     <!-- Change Requests -->
     <div id="changesTab">
-      <div id="changesArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+      <div id="changesArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
     </div>
 
     <!-- Vendor Approvals -->
     <div id="vendorsTab" style="display:none;">
-      <div id="vendorsArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+      <div id="vendorsArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
     </div>
 
     <!-- History -->
     <div id="historyTab" style="display:none;">
-      <div id="historyArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+      <div id="historyArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
     </div>
 
     <!-- Manage Vendors -->
@@ -122,8 +185,8 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
           <div class="card-title" style="margin-bottom:0;">Live Vendors</div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <input id="vendorSearch" placeholder="Search vendor..." style="border:1.5px solid #e0e0e0;border-radius:8px;padding:8px 12px;font-size:13px;" oninput="filterVendors()"/>
-            <button onclick="openAddVendor()" style="background:#002d62;color:#ffd600;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">+ Add EV</button>
+          <input id="vendorSearch" placeholder="🔍 Search vendor or city..." class="search-box" style="width:200px;" oninput="filterVendors()"/>
+            <button onclick="openAddVendor()" style="background:linear-gradient(135deg,#002d62,#003d8f);color:#ffd600;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">+ Add EV</button>
           </div>
         </div>
         <div id="manageArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
@@ -386,41 +449,54 @@ function showMsg(id, msg, type) {
 <!-- ADD VENDOR MODAL -->
 <div class="add-vendor-modal" id="addVendorModal" onclick="closeAddVendor()">
   <div class="add-vendor-box" onclick="event.stopPropagation()">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div class="av-title">Add New EV Listing</div>
-      <button onclick="closeAddVendor()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#757575;">✕</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <div class="av-title">➕ Add New EV Listing</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:3px;">Fill in the details to add a new vendor listing</div>
+      </div>
+      <button onclick="closeAddVendor()" style="background:#f3f4f6;border:none;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer;color:#6b7280;display:flex;align-items:center;justify-content:center;">✕</button>
     </div>
-    <div id="avMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:10px;"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div id="avMsg" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;border-left:4px solid;"></div>
+
+    <div class="av-section">🏢 Vendor Info</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div><span class="av-label">Vendor Name *</span><input class="av-inp" id="avVendor" placeholder="e.g. Bounce"/></div>
       <div><span class="av-label">City *</span><input class="av-inp" id="avCity" placeholder="e.g. Bangalore"/></div>
       <div><span class="av-label">Make / Model *</span><input class="av-inp" id="avMake" placeholder="e.g. Bounce Infinity E1"/></div>
       <div><span class="av-label">Type *</span>
-        <select class="av-inp" id="avType">
-          <option>Hi-Speed</option><option>Low speed</option><option>E-Cycle</option>
-        </select>
+        <select class="av-inp" id="avType"><option>Hi-Speed</option><option>Low speed</option><option>E-Cycle</option></select>
       </div>
+    </div>
+
+    <div class="av-section">💰 Pricing</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div><span class="av-label">Weekly Rent (₹) *</span><input class="av-inp" id="avRent" placeholder="e.g. 1750"/></div>
-      <div><span class="av-label">Range (km)</span><input class="av-inp" id="avRange" placeholder="e.g. 75"/></div>
       <div><span class="av-label">Security Deposit (₹)</span><input class="av-inp" id="avDeposit" placeholder="e.g. 500"/></div>
       <div><span class="av-label">Refundable Deposit (₹)</span><input class="av-inp" id="avRefund" placeholder="e.g. 500"/></div>
-      <div><span class="av-label">Charging / Swap</span>
-        <select class="av-inp" id="avCharge">
-          <option>Charging</option><option>Swap</option>
-        </select>
-      </div>
       <div><span class="av-label">Status</span>
-        <select class="av-inp" id="avStatus">
-          <option>Live</option><option>Hidden</option>
-        </select>
+        <select class="av-inp" id="avStatus"><option>Live</option><option>Hidden</option></select>
       </div>
+    </div>
+
+    <div class="av-section">🔋 Vehicle Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div><span class="av-label">Range (km)</span><input class="av-inp" id="avRange" placeholder="e.g. 75"/></div>
+      <div><span class="av-label">Charging / Swap</span>
+        <select class="av-inp" id="avCharge"><option>Charging</option><option>Swap</option></select>
+      </div>
+      <div style="grid-column:1/-1;"><span class="av-label">Battery Type</span><input class="av-inp" id="avBattery" placeholder="e.g. Sun Mobility Swap"/></div>
+    </div>
+
+    <div class="av-section">👤 SPOC Details</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
       <div><span class="av-label">SPOC Name</span><input class="av-inp" id="avSpoc" placeholder="Contact person"/></div>
       <div><span class="av-label">SPOC Phone</span><input class="av-inp" id="avSpocPhone" placeholder="Contact number"/></div>
     </div>
-    <span class="av-label">Battery Type</span>
-    <input class="av-inp" id="avBattery" placeholder="e.g. Swap / Home Charging"/>
+
+    <div class="av-section">🖼️ Image</div>
     <span class="av-label">Image URL (optional)</span>
     <input class="av-inp" id="avImage" placeholder="/static/images/..."/>
+
     <button class="av-btn" id="avSubmitBtn" onclick="submitAddVendor()">Add to Live Listings →</button>
   </div>
 </div>
