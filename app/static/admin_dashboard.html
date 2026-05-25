@@ -73,7 +73,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
         <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
       </div>
       <div style="height:12px;"></div>
-      <button class="btn" onclick="doAdminLogin()">Login →</button>
+      <button class="btn" id="loginBtn" onclick="doAdminLogin()">Login →</button>
     </div>
   </div>
 </div>
@@ -132,11 +132,8 @@ async function doAdminLogin() {
   const email = document.getElementById('adminEmail').value.trim();
   const pass = document.getElementById('adminPass').value;
   if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
-  const btn = document.getElementById('loginBtn');
-  btn.innerText = 'Logging in...'; btn.disabled = true;
   const res = await fetch('/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass})});
   const d = await res.json();
-  btn.innerText = 'Login →'; btn.disabled = false;
   if (d.ok) {
     adminToken = d.token;
     localStorage.setItem('admin_token', adminToken);
