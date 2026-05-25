@@ -147,6 +147,7 @@ function showDashboard() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('dashSection').style.display = 'block';
   loadPending();
+  setInterval(loadPending, 30000); // auto-refresh every 30s
 }
 
 async function loadPending() {
@@ -155,7 +156,7 @@ async function loadPending() {
   const d = await res.json();
 
   const changes = d.changes || [];
-  const vendors = d.vendors || [];
+  const vendors = (d.vendors || []).filter(v => v.status === 'pending');
   const pending = changes.filter(c => c.status === 'pending');
   const history = changes.filter(c => c.status !== 'pending');
 

@@ -70,16 +70,20 @@ def send_email(to_list, subject, body):
     if not SMTP_USER or not SMTP_PASS:
         print(f'[EMAIL SKIP] To: {to_list} | {subject}')
         return
-    try:
-        msg = MIMEText(body)
-        msg['Subject'] = subject
-        msg['From'] = SMTP_USER
-        msg['To'] = ', '.join(to_list)
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
-            s.login(SMTP_USER, SMTP_PASS)
-            s.sendmail(SMTP_USER, to_list, msg.as_string())
-    except Exception as e:
-        print(f'Email error: {e}')
+    import threading
+    def _send():
+        try:
+            msg = MIMEText(body)
+            msg['Subject'] = subject
+            msg['From'] = SMTP_USER
+            msg['To'] = ', '.join(to_list)
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
+                s.login(SMTP_USER, SMTP_PASS)
+                s.sendmail(SMTP_USER, to_list, msg.as_string())
+            print(f'[EMAIL OK] To: {to_list}')
+        except Exception as e:
+            print(f'Email error: {e}')
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def register_vendor(email: str, password: str, vendor_name: str, phone: str):
