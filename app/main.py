@@ -1,9 +1,10 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import os
 import json
 import asyncio
+import shutil
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -78,7 +79,86 @@ async def submit_lead(request: Request):
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 
 
-@app.get("/health")
+@app.get("/vendor")
+def vendor_portal():
+    return FileResponse(os.path.join(STATIC_DIR, "vendor_portal.html"))
+
+@app.get("/admin")
+def admin_dashboard():
+    return FileResponse(os.path.join(STATIC_DIR, "admin_dashboard.html"))
+
+@app.post("/vendor/register")
+async def vendor_register(request: Request):
+    from app.vendor_auth import register_vendor
+    d = await request.json()
+    return JSONResponse(register_vendor(d['email'], d['password'], d['vendor_name'], d.get('phone','')))
+
+@app.post("/vendor/login")
+async def vendor_login(request: Request):
+    from app.vendor_auth import login_vendor
+    d = await request.json()
+    return JSONResponse(login_vendor(d['email'], d['password']))
+
+@app.post("/admin/login")
+async def admin_login(request: Request):
+    from app.vendor_auth import login_admin
+    d = await request.json()
+    return JSONResponse(login_admin(d['email'], d['password']))
+
+@app.post("/vendor/propose")
+async def vendor_propose(request: Request):
+    from app.vendor_auth import submit_change
+    d = await request.json()
+    return JSONResponse(submit_change(d['token'], d['type'], d['payload']))
+
+@app.post("/vendor/upload-image")
+async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
+    from app.vendor_auth import decode_token
+    user = decode_token(token)
+    if not user:
+        return JSONResponse({'ok': False, 'msg': 'Unauthorized'}, status_code=401)
+    ext = os.path.splitext(file.filename)[1]
+    fname = f"vendor_{user['email'].split('@')[0]}_{file.filename}"
+    fpath = os.path.join(STATIC_DIR, 'images', fname)
+    with open(fpath, 'wb') as f:
+        shutil.copyfileobj(file.file, f)
+    return JSONResponse({'ok': True, 'image_url': f'/static/images/{fname}'})
+
+@app.post("/admin/review")
+async def admin_review(request: Request):
+    from app.vendor_auth import review_change
+    d = await request.json()
+    return JSONResponse(review_change(d['token'], d['change_id'], d['action'], d.get('note','')))
+
+@app.post("/admin/approve-vendor")
+async def admin_approve_vendor(request: Request):
+    from app.vendor_auth import approve_vendor
+    d = await request.json()
+    return JSONResponse(approve_vendor(d['token'], d['vendor_id'], d['action']))
+
+@app.get("/admin/pending")
+async def get_pending(request: Request):
+    from app.vendor_auth import decode_token, load_pending, load_auth, ADMIN_EMAILS
+    token = request.headers.get('Authorization','').replace('Bearer ','')
+    user = decode_token(token)
+    if not user or user.get('role') != 'admin':
+        return JSONResponse({'ok': False}, status_code=401)
+    return JSONResponse({'changes': load_pending(), 'vendors': [v for v in load_auth() if v['status']=='pending']})
+
+@app.get("/vendor/my-listings")
+async def my_listings(request: Request):
+    from app.vendor_auth import decode_token, load_auth, load_vendors
+    token = request.headers.get('Authorization','').replace('Bearer ','')
+    user = decode_token(token)
+    if not user or user.get('role') != 'vendor':
+        return JSONResponse({'ok': False}, status_code=401)
+    auth = load_auth()
+    vendor = next((v for v in auth if v['email'] == user['email']), None)
+    vendors = load_vendors()
+    my = [v for v in vendors if v.get('Vendor','').lower() == vendor['vendor_name'].lower()]
+    return JSONResponse({'ok': True, 'listings': my, 'vendor_name': vendor['vendor_name']})
+
+
 @app.head("/health")
 def health():
     return {"status": "EV Assist is running 🚴"}

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Portal - EV Assist</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
+.header{background:#002d62;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{color:#ffd600;font-size:18px;font-weight:900;}
+.header span{color:rgba(255,255,255,0.8);font-size:13px;}
+.logout-btn{background:#ffd600;color:#002d62;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+.main{max-width:600px;margin:0 auto;padding:20px 16px 60px;}
+.card{background:#fff;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
+.card-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:18px;}
+.tabs{display:flex;gap:0;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1.5px solid #e0e0e0;}
+.tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#757575;border:none;}
+.tab.active{background:#002d62;color:#ffd600;}
+.inp{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px;font-weight:500;}
+.inp:focus{outline:none;border-color:#002d62;}
+.btn{width:100%;background:#ffd600;color:#002d62;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:4px;}
+.btn:hover{background:#ffca00;}
+.btn-outline{background:#fff;color:#002d62;border:1.5px solid #002d62;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
+.msg{padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;}
+.msg.success{background:#e8f5e9;color:#2e7d32;display:block;}
+.msg.error{background:#ffebee;color:#c62828;display:block;}
+.section{display:none;}
+.section.show{display:block;}
+.listing-card{background:#f8faff;border-radius:12px;padding:14px;margin-bottom:12px;border:1.5px solid #e3eaff;}
+.listing-name{font-size:14px;font-weight:800;color:#002d62;margin-bottom:4px;}
+.listing-meta{font-size:12px;color:#757575;margin-bottom:10px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.badge-hi{background:#e3f2fd;color:#1565c0;}
+.badge-lo{background:#fff3e0;color:#e65100;}
+.badge-ec{background:#e8f5e9;color:#2e7d32;}
+.edit-btn{background:#002d62;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-right:8px;}
+.del-btn{background:#ffebee;color:#c62828;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:16px;padding:24px;width:92%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:16px;}
+.modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#757575;}
+label{font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;}
+select.inp{background:#fafafa;}
+.img-preview{width:100%;height:140px;object-fit:contain;border-radius:8px;border:1px solid #e0e0e0;margin-bottom:8px;display:none;}
+.pending-badge{background:#fff8e1;color:#f57f17;border:1px solid #ffe082;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;}
+.approved-badge{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<!-- AUTH SECTION -->
+<div id="authSection">
+  <div style="background:#002d62;padding:30px 20px;text-align:center;">
+    <img src="/static/images/logo.png" style="height:48px;margin-bottom:12px;"/>
+    <div style="color:#ffd600;font-size:20px;font-weight:900;">Vendor Portal</div>
+    <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px;">Manage your EV listings</div>
+  </div>
+  <div style="max-width:400px;margin:24px auto;padding:0 16px;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Login</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginTab" class="card">
+      <div id="loginMsg" class="msg"></div>
+      <label>Email Address</label>
+      <input class="inp" id="loginEmail" type="email" placeholder="your@email.com"/>
+      <label>Password</label>
+      <input class="inp" id="loginPass" type="password" placeholder="••••••••"/>
+      <button class="btn" onclick="doLogin()">Login →</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerTab" class="card" style="display:none;">
+      <div id="regMsg" class="msg"></div>
+      <label>Vendor / Company Name</label>
+      <input class="inp" id="regName" type="text" placeholder="e.g. Bounce, Yulu"/>
+      <label>Email Address</label>
+      <input class="inp" id="regEmail" type="email" placeholder="your@email.com"/>
+      <label>Phone Number</label>
+      <input class="inp" id="regPhone" type="tel" placeholder="98765 43210" maxlength="10"/>
+      <label>Password</label>
+      <input class="inp" id="regPass" type="password" placeholder="Min 8 characters"/>
+      <label>Confirm Password</label>
+      <input class="inp" id="regPass2" type="password" placeholder="Repeat password"/>
+      <button class="btn" onclick="doRegister()">Submit Registration →</button>
+      <p style="font-size:12px;color:#9e9e9e;margin-top:12px;text-align:center;">Registration requires admin approval before login access.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD SECTION -->
+<div id="dashSection" style="display:none;">
+  <div class="header">
+    <div>
+      <h1>EV Assist — Vendor Portal</h1>
+      <span id="vendorNameHeader"></span>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+
+  <div class="main">
+    <!-- My Listings -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="card-title" style="margin-bottom:0;">My EV Listings</div>
+        <button class="btn-outline" onclick="openAddModal()">+ Add New EV</button>
+      </div>
+      <div id="listingsArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+    </div>
+
+    <!-- My Requests -->
+    <div class="card">
+      <div class="card-title">My Change Requests</div>
+      <div id="requestsArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT/ADD MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Edit EV Listing</div>
+    <div id="modalMsg" class="msg"></div>
+
+    <label>City</label>
+    <input class="inp" id="fCity" placeholder="e.g. Bangalore"/>
+    <label>Make / Model</label>
+    <input class="inp" id="fMake" placeholder="e.g. Bounce Infinity E1"/>
+    <label>Type</label>
+    <select class="inp" id="fType">
+      <option>Hi-Speed</option>
+      <option>Low speed</option>
+      <option>E-Cycle</option>
+    </select>
+    <label>Weekly Rent (₹)</label>
+    <input class="inp" id="fRent" placeholder="e.g. 1750"/>
+    <label>Range (km)</label>
+    <input class="inp" id="fRange" placeholder="e.g. 75"/>
+    <label>Security Deposit (₹)</label>
+    <input class="inp" id="fDeposit" placeholder="e.g. 500"/>
+    <label>Refundable Deposit (₹)</label>
+    <input class="inp" id="fRefund" placeholder="e.g. 500"/>
+    <label>Charging / Swap</label>
+    <select class="inp" id="fCharge">
+      <option>Charging</option>
+      <option>Swap</option>
+    </select>
+    <label>SPOC Name</label>
+    <input class="inp" id="fSpoc" placeholder="Contact person name"/>
+    <label>SPOC Phone</label>
+    <input class="inp" id="fSpocPhone" placeholder="Contact number"/>
+    <label>EV Image</label>
+    <img id="imgPreview" class="img-preview"/>
+    <input type="file" id="fImage" accept="image/*" onchange="previewImage(this)" style="margin-bottom:12px;font-size:13px;"/>
+    <input type="hidden" id="fImageUrl"/>
+    <input type="hidden" id="fEditMode"/>
+    <input type="hidden" id="fOriginalData"/>
+    <button class="btn" onclick="submitChange()">Submit for Approval →</button>
+  </div>
+</div>
+
+<script>
+let token = localStorage.getItem('vendor_token') || '';
+let vendorName = localStorage.getItem('vendor_name') || '';
+
+if (token) showDashboard();
+
+function switchTab(tab) {
+  document.getElementById('loginTab').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('registerTab').style.display = tab === 'register' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'login')));
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
+  const res = await fetch('/vendor/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass})});
+  const d = await res.json();
+  if (d.ok) {
+    token = d.token;
+    vendorName = d.vendor_name;
+    localStorage.setItem('vendor_token', token);
+    localStorage.setItem('vendor_name', vendorName);
+    showDashboard();
+  } else {
+    showMsg('loginMsg', d.msg, 'error');
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  if (!name || !email || !pass) return showMsg('regMsg', 'Please fill all fields', 'error');
+  if (pass !== pass2) return showMsg('regMsg', 'Passwords do not match', 'error');
+  if (pass.length < 8) return showMsg('regMsg', 'Password must be at least 8 characters', 'error');
+  const res = await fetch('/vendor/register', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass, vendor_name: name, phone})});
+  const d = await res.json();
+  showMsg('regMsg', d.msg, d.ok ? 'success' : 'error');
+}
+
+function showDashboard() {
+  document.getElementById('authSection').style.display = 'none';
+  document.getElementById('dashSection').style.display = 'block';
+  document.getElementById('vendorNameHeader').innerText = vendorName;
+  loadListings();
+  loadRequests();
+}
+
+async function loadListings() {
+  const res = await fetch('/vendor/my-listings', {headers: {'Authorization': 'Bearer ' + token}});
+  const d = await res.json();
+  const area = document.getElementById('listingsArea');
+  if (!d.ok || !d.listings.length) { area.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:20px;">No listings found. Add your first EV!</div>'; return; }
+  area.innerHTML = d.listings.map((v, i) => {
+    const tk = (v.Type||'').toLowerCase().includes('hi') ? 'hi-speed' : (v.Type||'').toLowerCase().includes('low') ? 'low-speed' : 'e-cycle';
+    const bc = tk === 'hi-speed' ? 'badge-hi' : tk === 'low-speed' ? 'badge-lo' : 'badge-ec';
+    const bl = tk === 'hi-speed' ? 'Hi-Speed' : tk === 'low-speed' ? 'Low Speed' : 'E-Cycle';
+    return `<div class="listing-card">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        ${v.Image ? `<img src="${v.Image}" style="width:60px;height:50px;object-fit:contain;border-radius:6px;border:1px solid #e0e0e0;flex-shrink:0;"/>` : ''}
+        <div style="flex:1;">
+          <div class="listing-name">${v.Vendor} — ${v.Make||''}</div>
+          <div class="listing-meta">${v.City} | Range: ${v['Range (Km)']||'N/A'} km | ₹${v['Approx Rental/Week']||'N/A'}/week</div>
+          <span class="badge ${bc}">${bl}</span>
+        </div>
+      </div>
+      <div style="margin-top:10px;">
+        <button class="edit-btn" onclick='openEditModal(${JSON.stringify(JSON.stringify(v))})'>✏️ Edit</button>
+        <button class="del-btn" onclick='requestDelete(${JSON.stringify(JSON.stringify(v))})'>🗑 Request Removal</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function loadRequests() {
+  const area = document.getElementById('requestsArea');
+  area.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:20px;">Requests will appear here after submission.</div>';
+}
+
+function openAddModal() {
+  document.getElementById('modalTitle').innerText = 'Add New EV Listing';
+  document.getElementById('fEditMode').value = 'new';
+  document.getElementById('fCity').value = '';
+  document.getElementById('fMake').value = '';
+  document.getElementById('fRent').value = '';
+  document.getElementById('fRange').value = '';
+  document.getElementById('fDeposit').value = '';
+  document.getElementById('fRefund').value = '';
+  document.getElementById('fSpoc').value = '';
+  document.getElementById('fSpocPhone').value = '';
+  document.getElementById('fImageUrl').value = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('modalMsg').className = 'msg';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function openEditModal(vStr) {
+  const v = JSON.parse(vStr);
+  document.getElementById('modalTitle').innerText = 'Edit EV Listing';
+  document.getElementById('fEditMode').value = 'edit';
+  document.getElementById('fOriginalData').value = vStr;
+  document.getElementById('fCity').value = v.City || '';
+  document.getElementById('fMake').value = v.Make || '';
+  document.getElementById('fType').value = v.Type || 'Hi-Speed';
+  document.getElementById('fRent').value = v['Approx Rental/Week'] || '';
+  document.getElementById('fRange').value = v['Range (Km)'] || '';
+  document.getElementById('fDeposit').value = v['Security Deposit'] || '';
+  document.getElementById('fRefund').value = v['Refundable Deposit'] || '';
+  document.getElementById('fCharge').value = v['Charging/Swap'] || 'Charging';
+  document.getElementById('fSpoc').value = v.SPOC || '';
+  document.getElementById('fSpocPhone').value = v.Phone || '';
+  document.getElementById('fImageUrl').value = v.Image || '';
+  if (v.Image) { document.getElementById('imgPreview').src = v.Image; document.getElementById('imgPreview').style.display = 'block'; }
+  document.getElementById('modalMsg').className = 'msg';
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('editModal').classList.remove('show'); }
+
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { document.getElementById('imgPreview').src = e.target.result; document.getElementById('imgPreview').style.display = 'block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function submitChange() {
+  const mode = document.getElementById('fEditMode').value;
+  const btn = document.querySelector('#editModal .btn');
+  btn.innerText = 'Submitting...'; btn.disabled = true;
+
+  let imageUrl = document.getElementById('fImageUrl').value;
+  const fileInput = document.getElementById('fImage');
+  if (fileInput.files && fileInput.files[0]) {
+    const fd = new FormData();
+    fd.append('token', token);
+    fd.append('file', fileInput.files[0]);
+    const imgRes = await fetch('/vendor/upload-image', {method:'POST', body: fd});
+    const imgData = await imgRes.json();
+    if (imgData.ok) imageUrl = imgData.image_url;
+  }
+
+  const payload = {
+    Vendor: vendorName,
+    City: document.getElementById('fCity').value.trim(),
+    Make: document.getElementById('fMake').value.trim(),
+    Type: document.getElementById('fType').value,
+    'Approx Rental/Week': document.getElementById('fRent').value.trim(),
+    'Range (Km)': document.getElementById('fRange').value.trim(),
+    'Security Deposit': document.getElementById('fDeposit').value.trim(),
+    'Refundable Deposit': document.getElementById('fRefund').value.trim(),
+    'Charging/Swap': document.getElementById('fCharge').value,
+    SPOC: document.getElementById('fSpoc').value.trim(),
+    Phone: document.getElementById('fSpocPhone').value.trim(),
+    Image: imageUrl,
+    Status: 'Live'
+  };
+
+  const res = await fetch('/vendor/propose', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token, type: mode, payload})});
+  const d = await res.json();
+  btn.innerText = 'Submit for Approval →'; btn.disabled = false;
+  showMsg('modalMsg', d.msg, d.ok ? 'success' : 'error');
+  if (d.ok) setTimeout(closeModal, 2000);
+}
+
+async function requestDelete(vStr) {
+  const v = JSON.parse(vStr);
+  if (!confirm(`Request removal of ${v.Make} in ${v.City}?`)) return;
+  const res = await fetch('/vendor/propose', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token, type: 'delete', payload: v})});
+  const d = await res.json();
+  alert(d.msg);
+}
+
+function doLogout() {
+  localStorage.removeItem('vendor_token');
+  localStorage.removeItem('vendor_name');
+  location.reload();
+}
+
+function showMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.className = 'msg ' + type;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - EV Assist</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
+.header{background:#002d62;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.header h1{color:#ffd600;font-size:18px;font-weight:900;}
+.logout-btn{background:#ffd600;color:#002d62;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
+.main{max-width:800px;margin:0 auto;padding:20px 16px 60px;}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
+.card-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:16px;}
+.inp{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px;font-weight:500;}
+.inp:focus{outline:none;border-color:#002d62;}
+.btn{width:100%;background:#ffd600;color:#002d62;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;}
+.btn:hover{background:#ffca00;}
+.msg{padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;}
+.msg.success{background:#e8f5e9;color:#2e7d32;display:block;}
+.msg.error{background:#ffebee;color:#c62828;display:block;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.tab{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#002d62;border:1.5px solid #e0e0e0;}
+.tab.active{background:#002d62;color:#ffd600;border-color:#002d62;}
+.change-card{background:#f8faff;border-radius:12px;padding:16px;margin-bottom:12px;border:1.5px solid #e3eaff;}
+.change-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+.change-vendor{font-size:14px;font-weight:800;color:#002d62;}
+.change-type{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.type-edit{background:#e3f2fd;color:#1565c0;}
+.type-new{background:#e8f5e9;color:#2e7d32;}
+.type-delete{background:#ffebee;color:#c62828;}
+.change-meta{font-size:12px;color:#757575;margin-bottom:10px;}
+.change-details{background:#fff;border-radius:8px;padding:12px;font-size:12px;margin-bottom:12px;border:1px solid #e0e0e0;}
+.change-details table{width:100%;border-collapse:collapse;}
+.change-details td{padding:4px 8px;border-bottom:1px solid #f5f5f5;}
+.change-details td:first-child{font-weight:700;color:#002d62;width:40%;}
+.action-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.approve-btn{background:#002d62;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;}
+.reject-btn{background:#ffebee;color:#c62828;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;}
+.note-inp{flex:1;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 12px;font-size:13px;min-width:150px;}
+.status-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;}
+.status-pending{background:#fff8e1;color:#f57f17;}
+.status-approved{background:#e8f5e9;color:#2e7d32;}
+.status-rejected{background:#ffebee;color:#c62828;}
+.vendor-card{background:#f8faff;border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid #e3eaff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.vendor-info{font-size:13px;}
+.vendor-name{font-weight:800;color:#002d62;font-size:14px;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:#fff;border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.stat-num{font-size:28px;font-weight:900;color:#002d62;}
+.stat-lbl{font-size:12px;color:#757575;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginSection">
+  <div style="background:#002d62;padding:30px 20px;text-align:center;">
+    <img src="/static/images/logo.png" style="height:48px;margin-bottom:12px;"/>
+    <div style="color:#ffd600;font-size:20px;font-weight:900;">Admin Dashboard</div>
+    <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px;">Flipkart Minutes EV Assist</div>
+  </div>
+  <div style="max-width:380px;margin:24px auto;padding:0 16px;">
+    <div class="card">
+      <div class="card-title">Admin Login</div>
+      <div id="loginMsg" class="msg"></div>
+      <label style="font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;">Email</label>
+      <input class="inp" id="adminEmail" type="email" placeholder="your@flipkart.com"/>
+      <label style="font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;">Password</label>
+      <input class="inp" id="adminPass" type="password" placeholder="••••••••"/>
+      <button class="btn" onclick="doAdminLogin()">Login →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashSection" style="display:none;">
+  <div class="header">
+    <h1>Admin Dashboard — EV Assist</h1>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+
+  <div class="main">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending Changes</div></div>
+      <div class="stat-box"><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Pending Vendors</div></div>
+      <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Requests</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('changes')">Change Requests</button>
+      <button class="tab" onclick="switchTab('vendors')">New Vendor Approvals</button>
+      <button class="tab" onclick="switchTab('history')">History</button>
+    </div>
+
+    <!-- Change Requests -->
+    <div id="changesTab">
+      <div id="changesArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+    </div>
+
+    <!-- Vendor Approvals -->
+    <div id="vendorsTab" style="display:none;">
+      <div id="vendorsArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+    </div>
+
+    <!-- History -->
+    <div id="historyTab" style="display:none;">
+      <div id="historyArea"><div style="text-align:center;color:#9e9e9e;padding:30px;">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let adminToken = localStorage.getItem('admin_token') || '';
+if (adminToken) showDashboard();
+
+async function doAdminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass = document.getElementById('adminPass').value;
+  if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
+  const res = await fetch('/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass})});
+  const d = await res.json();
+  if (d.ok) {
+    adminToken = d.token;
+    localStorage.setItem('admin_token', adminToken);
+    showDashboard();
+  } else {
+    showMsg('loginMsg', d.msg, 'error');
+  }
+}
+
+function showDashboard() {
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('dashSection').style.display = 'block';
+  loadPending();
+}
+
+async function loadPending() {
+  const res = await fetch('/admin/pending', {headers: {'Authorization': 'Bearer ' + adminToken}});
+  if (res.status === 401) { doLogout(); return; }
+  const d = await res.json();
+
+  const changes = d.changes || [];
+  const vendors = d.vendors || [];
+  const pending = changes.filter(c => c.status === 'pending');
+  const history = changes.filter(c => c.status !== 'pending');
+
+  document.getElementById('statPending').innerText = pending.length;
+  document.getElementById('statVendors').innerText = vendors.length;
+  document.getElementById('statTotal').innerText = changes.length;
+
+  // Render pending changes
+  const changesArea = document.getElementById('changesArea');
+  if (!pending.length) {
+    changesArea.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:30px;">No pending change requests ✅</div>';
+  } else {
+    changesArea.innerHTML = pending.map(c => renderChangeCard(c, true)).join('');
+  }
+
+  // Render vendor approvals
+  const vendorsArea = document.getElementById('vendorsArea');
+  if (!vendors.length) {
+    vendorsArea.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:30px;">No pending vendor registrations ✅</div>';
+  } else {
+    vendorsArea.innerHTML = vendors.map(v => `
+      <div class="vendor-card">
+        <div class="vendor-info">
+          <div class="vendor-name">${v.vendor_name}</div>
+          <div style="color:#757575;font-size:12px;">${v.email} | ${v.phone || 'N/A'}</div>
+          <div style="color:#9e9e9e;font-size:11px;margin-top:2px;">Registered: ${new Date(v.created_at).toLocaleString()}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="approve-btn" onclick="reviewVendor('${v.id}','approve')">✅ Approve</button>
+          <button class="reject-btn" onclick="reviewVendor('${v.id}','reject')">❌ Reject</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // Render history
+  const historyArea = document.getElementById('historyArea');
+  if (!history.length) {
+    historyArea.innerHTML = '<div style="text-align:center;color:#9e9e9e;padding:30px;">No history yet.</div>';
+  } else {
+    historyArea.innerHTML = history.map(c => renderChangeCard(c, false)).join('');
+  }
+}
+
+function renderChangeCard(c, showActions) {
+  const p = c.payload || {};
+  const typeClass = c.type === 'new' ? 'type-new' : c.type === 'delete' ? 'type-delete' : 'type-edit';
+  const typeLabel = c.type === 'new' ? 'New EV' : c.type === 'delete' ? 'Remove EV' : 'Edit EV';
+  const statusClass = c.status === 'approved' ? 'status-approved' : c.status === 'rejected' ? 'status-rejected' : 'status-pending';
+
+  const fields = ['City','Make','Type','Approx Rental/Week','Range (Km)','Security Deposit','Refundable Deposit','Charging/Swap','SPOC','Phone'];
+  const rows = fields.filter(f => p[f]).map(f => `<tr><td>${f}</td><td>${p[f]}</td></tr>`).join('');
+
+  return `<div class="change-card">
+    <div class="change-header">
+      <div>
+        <div class="change-vendor">${c.vendor_name}</div>
+        <div class="change-meta">Submitted: ${new Date(c.submitted_at).toLocaleString()}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span class="change-type ${typeClass}">${typeLabel}</span>
+        <span class="status-badge ${statusClass}">${c.status}</span>
+      </div>
+    </div>
+    ${p.Image ? `<img src="${p.Image}" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px;border:1px solid #e0e0e0;margin-bottom:10px;"/>` : ''}
+    <div class="change-details"><table>${rows}</table></div>
+    ${c.review_note ? `<div style="font-size:12px;color:#757575;margin-bottom:10px;">Note: ${c.review_note}</div>` : ''}
+    ${showActions ? `
+    <div class="action-row">
+      <input class="note-inp" id="note_${c.id}" placeholder="Rejection reason (optional)"/>
+      <button class="approve-btn" onclick="reviewChange('${c.id}','approved')">✅ Approve</button>
+      <button class="reject-btn" onclick="reviewChange('${c.id}','rejected')">❌ Reject</button>
+    </div>` : ''}
+  </div>`;
+}
+
+async function reviewChange(id, action) {
+  const note = (document.getElementById('note_' + id) || {}).value || '';
+  if (action === 'rejected' && !note) return alert('Please enter a rejection reason.');
+  const res = await fetch('/admin/review', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token: adminToken, change_id: id, action, note})});
+  const d = await res.json();
+  alert(d.msg);
+  loadPending();
+}
+
+async function reviewVendor(id, action) {
+  const res = await fetch('/admin/approve-vendor', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token: adminToken, vendor_id: id, action})});
+  const d = await res.json();
+  alert(d.ok ? `Vendor ${action}d successfully` : d.msg);
+  loadPending();
+}
+
+function switchTab(tab) {
+  ['changes','vendors','history'].forEach(t => {
+    document.getElementById(t+'Tab').style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['changes','vendors','history'][i] === tab);
+  });
+}
+
+function doLogout() {
+  localStorage.removeItem('admin_token');
+  location.reload();
+}
+
+function showMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerText = msg;
+  el.className = 'msg ' + type;
+}
+</script>
+</body>
+</html>
