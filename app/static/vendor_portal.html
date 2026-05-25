@@ -258,7 +258,18 @@ function openAddModal() {
   document.getElementById('fSpoc').value = '';
   document.getElementById('fSpocPhone').value = '';
   document.getElementById('fImageUrl').value = '';
-  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('fImageUrl2').value = '';
+  document.getElementById('fImageUrl3').value = '';
+  document.getElementById('fVideoUrl').value = '';
+  [1,2,3].forEach(n => {
+    document.getElementById('imgPreview'+n).style.display='none';
+    document.getElementById('img'+n+'Icon').style.display='block';
+    document.getElementById('fImage'+n).value='';
+  });
+  document.getElementById('videoPreview').style.display='none';
+  document.getElementById('videoName').innerText='Click to upload video';
+  document.getElementById('fVideo').value='';
+  document.getElementById('imgError').style.display='none';
   document.getElementById('modalMsg').className = 'msg';
   document.getElementById('editModal').classList.add('show');
 }
@@ -279,19 +290,47 @@ function openEditModal(vStr) {
   document.getElementById('fSpoc').value = v.SPOC || '';
   document.getElementById('fSpocPhone').value = v.Phone || '';
   document.getElementById('fImageUrl').value = v.Image || '';
-  if (v.Image) { document.getElementById('imgPreview').src = v.Image; document.getElementById('imgPreview').style.display = 'block'; }
+  document.getElementById('fImageUrl2').value = v.Image2 || '';
+  document.getElementById('fImageUrl3').value = v.Image3 || '';
+  document.getElementById('fVideoUrl').value = v.Video || '';
+  [1,2,3].forEach(n => {
+    const key = n===1?'Image':('Image'+n);
+    const img = document.getElementById('imgPreview'+n);
+    const icon = document.getElementById('img'+n+'Icon');
+    if (v[key]) { img.src=v[key]; img.style.display='block'; icon.style.display='none'; }
+    else { img.style.display='none'; icon.style.display='block'; }
+  });
+  if (v.Video) { document.getElementById('videoPreview').src=v.Video; document.getElementById('videoPreview').style.display='block'; document.getElementById('videoName').innerText='Video uploaded'; }
+  else { document.getElementById('videoPreview').style.display='none'; document.getElementById('videoName').innerText='Click to upload video'; }
   document.getElementById('modalMsg').className = 'msg';
   document.getElementById('editModal').classList.add('show');
 }
 
 function closeModal() { document.getElementById('editModal').classList.remove('show'); }
 
-function previewImage(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => { document.getElementById('imgPreview').src = e.target.result; document.getElementById('imgPreview').style.display = 'block'; };
-    reader.readAsDataURL(input.files[0]);
-  }
+function previewImg(input, num) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 2 * 1024 * 1024) { alert('Image ' + num + ' exceeds 2MB limit'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('imgPreview' + num);
+    const icon = document.getElementById('img' + num + 'Icon');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    icon.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewVideo(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 30 * 1024 * 1024) { alert('Video exceeds 30MB limit'); input.value = ''; return; }
+  const url = URL.createObjectURL(file);
+  const vid = document.getElementById('videoPreview');
+  vid.src = url; vid.style.display = 'block';
+  document.getElementById('videoName').innerText = file.name;
 }
 
 async function submitChange() {
@@ -299,15 +338,43 @@ async function submitChange() {
   const btn = document.querySelector('#editModal .btn');
   btn.innerText = 'Submitting...'; btn.disabled = true;
 
-  let imageUrl = document.getElementById('fImageUrl').value;
-  const fileInput = document.getElementById('fImage');
-  if (fileInput.files && fileInput.files[0]) {
+  // Validate 3 images mandatory
+  const img1 = document.getElementById('fImage1');
+  const img2 = document.getElementById('fImage2');
+  const img3 = document.getElementById('fImage3');
+  const existImg1 = document.getElementById('fImageUrl').value;
+  const existImg2 = document.getElementById('fImageUrl2').value;
+  const existImg3 = document.getElementById('fImageUrl3').value;
+  if ((!img1.files || !img1.files[0]) && !existImg1) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
+  if ((!img2.files || !img2.files[0]) && !existImg2) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
+  if ((!img3.files || !img3.files[0]) && !existImg3) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
+  document.getElementById('imgError').style.display='none';
+
+  async function uploadFile(fileInput, existingUrl) {
+    if (fileInput.files && fileInput.files[0]) {
+      const fd = new FormData();
+      fd.append('token', token);
+      fd.append('file', fileInput.files[0]);
+      const r = await fetch('/vendor/upload-image', {method:'POST', body: fd});
+      const d = await r.json();
+      return d.ok ? d.image_url : existingUrl;
+    }
+    return existingUrl;
+  }
+
+  const imageUrl = await uploadFile(img1, existImg1);
+  const imageUrl2 = await uploadFile(img2, existImg2);
+  const imageUrl3 = await uploadFile(img3, existImg3);
+
+  let videoUrl = document.getElementById('fVideoUrl').value;
+  const vidInput = document.getElementById('fVideo');
+  if (vidInput.files && vidInput.files[0]) {
     const fd = new FormData();
     fd.append('token', token);
-    fd.append('file', fileInput.files[0]);
-    const imgRes = await fetch('/vendor/upload-image', {method:'POST', body: fd});
-    const imgData = await imgRes.json();
-    if (imgData.ok) imageUrl = imgData.image_url;
+    fd.append('file', vidInput.files[0]);
+    const r = await fetch('/vendor/upload-image', {method:'POST', body: fd});
+    const d = await r.json();
+    if (d.ok) videoUrl = d.image_url;
   }
 
   const payload = {
@@ -323,6 +390,9 @@ async function submitChange() {
     SPOC: document.getElementById('fSpoc').value.trim(),
     Phone: document.getElementById('fSpocPhone').value.trim(),
     Image: imageUrl,
+    Image2: imageUrl2,
+    Image3: imageUrl3,
+    Video: videoUrl,
     Status: 'Live'
   };
 

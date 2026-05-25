@@ -117,8 +117,11 @@ async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
     user = decode_token(token)
     if not user:
         return JSONResponse({'ok': False, 'msg': 'Unauthorized'}, status_code=401)
+    allowed = ['image/jpeg','image/png','image/webp','video/mp4']
+    if file.content_type not in allowed:
+        return JSONResponse({'ok': False, 'msg': 'Invalid file type'})
     ext = os.path.splitext(file.filename)[1]
-    fname = f"vendor_{user['email'].split('@')[0]}_{file.filename}"
+    fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
     fpath = os.path.join(STATIC_DIR, 'images', fname)
     with open(fpath, 'wb') as f:
         shutil.copyfileobj(file.file, f)
