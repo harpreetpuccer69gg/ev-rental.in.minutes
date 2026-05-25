@@ -121,12 +121,15 @@ def login_vendor(email: str, password: str):
 
 
 def login_admin(email: str, password: str):
-    admin_pass = os.getenv('ADMIN_PASSWORD', 'Flipkart@2025')
-    if email not in ADMIN_EMAILS:
+    admin_pass = os.getenv('ADMIN_PASSWORD', '').strip()
+    if not admin_pass:
+        admin_pass = 'Flipkart@2025'
+    print(f'[ADMIN LOGIN] email={email} pass_len={len(password)} env_pass_len={len(admin_pass)}')
+    if email.strip().lower() not in [e.lower() for e in ADMIN_EMAILS]:
         return {'ok': False, 'msg': 'Not authorized'}
-    if password != admin_pass:
+    if password.strip() != admin_pass:
         return {'ok': False, 'msg': 'Incorrect password'}
-    token = create_token(email, 'admin')
+    token = create_token(email.strip(), 'admin')
     return {'ok': True, 'token': token}
 
 
