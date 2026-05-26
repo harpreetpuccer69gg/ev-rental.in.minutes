@@ -118,6 +118,13 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 <body>
 <div class="toast" id="toast"></div>
 
+<!-- FUNCTIONS MUST LOAD BEFORE HTML RENDERS -->
+<script>
+function doAdminLogin(){_doAdminLogin();}
+function doLogout(){localStorage.removeItem('admin_token');location.reload();}
+function togglePwd(){const inp=document.getElementById('adminPass');const btn=inp.nextElementSibling;if(inp.type==='password'){inp.type='text';btn.innerText='🙈';}else{inp.type='password';btn.innerText='👁';}}
+</script>
+
 <!-- LOGIN -->
 <div id="loginSection">
   <div class="login-wrap">
@@ -235,7 +242,7 @@ function togglePwd() {
   else { inp.type = 'password'; btn.innerText = '👁'; }
 }
 
-async function doAdminLogin() {
+async function _doAdminLogin() {
   const email = document.getElementById('adminEmail').value.trim();
   const pass = document.getElementById('adminPass').value;
   if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
