@@ -531,7 +531,7 @@ function showMsg(id, msg, type) {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Login
-  var lb = document.getElementById('loginBtn2');
+  var lb = document.getElementById('loginBtn');
   if (lb) lb.addEventListener('click', doAdminLogin);
 
   // Toggle password
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
           <button type="button" id="togglePwdBtn" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
         </div>
-        <button class="btn" id="loginBtn" id="loginBtn2">Sign In →</button>
+        <button class="btn" id="loginBtn">Sign In →</button>
       </div>
     </div>
   </div>
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <button onclick="filterHistory('all')" id="hf-all" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #002d62;background:#002d62;color:#ffd600;font-family:'Inter',sans-serif;">All</button>
         <button onclick="filterHistory('approved')" id="hf-approved" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">✅ Approved</button>
         <button onclick="filterHistory('rejected')" id="hf-rejected" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">❌ Rejected</button>
-        <input id="histSearch" placeholder="🔍 Search vendor..." id="histSearchInput" style="margin-left:auto;border:1.5px solid #e8eaf0;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'Inter',sans-serif;background:#fafbfc;outline:none;width:180px;"/>
+        <input id="histSearch" placeholder="🔍 Search vendor..." style="margin-left:auto;border:1.5px solid #e8eaf0;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'Inter',sans-serif;background:#fafbfc;outline:none;width:180px;"/>
       </div>
       <div id="historyArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
     </div>
@@ -679,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
           <div class="card-title" style="margin-bottom:0;">Live Vendors</div>
           <div style="display:flex;gap:8px;align-items:center;">
-          <input id="vendorSearch" placeholder="🔍 Search vendor or city..." class="search-box" style="width:200px;" id="vendorSearchInput"/>
+          <input id="vendorSearch" placeholder="🔍 Search vendor or city..." class="search-box" style="width:200px;"/>
             <button id="openAddVendorBtn" style="background:linear-gradient(135deg,#002d62,#003d8f);color:#ffd600;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">+ Add EV</button>
           </div>
         </div>
