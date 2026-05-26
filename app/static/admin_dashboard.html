@@ -526,20 +526,14 @@ function showMsg(id, msg, type) {
   el.className = 'msg ' + type;
 }
 
-// Expose to global scope for onclick handlers
-window.doAdminLogin = doAdminLogin;
-window.doLogout = doLogout;
-window.togglePwd = togglePwd;
-window.switchTab = switchTab;
-window.reviewChange = reviewChange;
-window.reviewVendor = reviewVendor;
-window.removeVendorEntry = removeVendorEntry;
-window.openAddVendor = openAddVendor;
-window.closeAddVendor = closeAddVendor;
-window.submitAddVendor = submitAddVendor;
-window.filterVendors = filterVendors;
-window.filterHistory = filterHistory;
-window.removeFromHistory = removeFromHistory;
+
+// Attach all event listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  var lb = document.getElementById('loginBtn2');
+  if (lb) lb.addEventListener('click', doAdminLogin);
+  var ap = document.getElementById('adminPass');
+  if (ap) ap.addEventListener('keydown', function(e){ if(e.key==='Enter') doAdminLogin(); });
+});
 </script>
 </head>
 <body>
@@ -565,7 +559,7 @@ window.removeFromHistory = removeFromHistory;
           <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
           <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
         </div>
-        <button class="btn" id="loginBtn" onclick="doAdminLogin()">Sign In →</button>
+        <button class="btn" id="loginBtn" id="loginBtn2">Sign In →</button>
       </div>
     </div>
   </div>
