@@ -383,7 +383,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     </div>
   </div>
 
-  <button class="find-btn" id="findBtn" onclick="findEVs()">🔍 Find EVs</button>
+
 
   <div id="resultsArea"></div>
 </div>
@@ -594,7 +594,7 @@ function setLang(l){
   document.getElementById('b2').innerText=t.b2;
   document.getElementById('b3').innerText=t.b3;
   document.getElementById('b4').innerText=t.b4;
-  document.getElementById('findBtn').innerText=t.findBtn;
+
   document.getElementById('riderName').placeholder=t.namePh;
   document.getElementById('riderPhone').placeholder=t.phonePh;
   document.getElementById('confirmBtn').innerText=t.confirmBtn;
@@ -626,7 +626,7 @@ function setBudget(el,v){
 
 function checkReady(){
   const city=document.getElementById('citySelect').value;
-  document.getElementById('findBtn').disabled=!city;
+
   updateCarousel();
   if(city) findEVs();
 }
