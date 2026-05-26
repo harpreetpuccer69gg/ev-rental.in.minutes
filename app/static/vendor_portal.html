@@ -154,10 +154,39 @@ select.inp{background:#fafafa;}
     <input class="inp" id="fSpoc" placeholder="Contact person name"/>
     <label>SPOC Phone</label>
     <input class="inp" id="fSpocPhone" placeholder="Contact number"/>
-    <label>EV Image</label>
-    <img id="imgPreview" class="img-preview"/>
-    <input type="file" id="fImage" accept="image/*" onchange="previewImage(this)" style="margin-bottom:12px;font-size:13px;"/>
+    <label>EV Images <span style="font-size:11px;color:#9e9e9e;font-weight:500;">(3 required · JPG/PNG/WEBP · max 2MB each · recommended 800×600px)</span></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px;">
+      <div onclick="document.getElementById('fImage1').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
+        <span id="img1Icon" style="font-size:22px;">📷</span>
+        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 1</span>
+        <img id="imgPreview1" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
+        <input type="file" id="fImage1" accept="image/*" style="display:none;" onchange="previewImg(this,1)"/>
+      </div>
+      <div onclick="document.getElementById('fImage2').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
+        <span id="img2Icon" style="font-size:22px;">📷</span>
+        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 2</span>
+        <img id="imgPreview2" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
+        <input type="file" id="fImage2" accept="image/*" style="display:none;" onchange="previewImg(this,2)"/>
+      </div>
+      <div onclick="document.getElementById('fImage3').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
+        <span id="img3Icon" style="font-size:22px;">📷</span>
+        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 3</span>
+        <img id="imgPreview3" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
+        <input type="file" id="fImage3" accept="image/*" style="display:none;" onchange="previewImg(this,3)"/>
+      </div>
+    </div>
+    <div id="imgError" style="display:none;color:#c62828;font-size:12px;margin-bottom:8px;">⚠️ Please upload all 3 images.</div>
+    <label style="margin-top:4px;">EV Video <span style="font-size:11px;color:#9e9e9e;font-weight:500;">(optional · MP4 · max 30MB · recommended 1280×720px)</span></label>
+    <div onclick="document.getElementById('fVideo').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;background:#fafafa;margin-bottom:12px;">
+      <span style="font-size:22px;">🎥</span>
+      <span id="videoName" style="font-size:12px;color:#9e9e9e;">Click to upload video</span>
+      <input type="file" id="fVideo" accept="video/mp4" style="display:none;" onchange="previewVideo(this)"/>
+    </div>
+    <video id="videoPreview" style="display:none;width:100%;border-radius:8px;margin-bottom:12px;" controls></video>
     <input type="hidden" id="fImageUrl"/>
+    <input type="hidden" id="fImageUrl2"/>
+    <input type="hidden" id="fImageUrl3"/>
+    <input type="hidden" id="fVideoUrl"/>
     <input type="hidden" id="fEditMode"/>
     <input type="hidden" id="fOriginalData"/>
     <button class="btn" onclick="submitChange()">Submit for Approval →</button>
