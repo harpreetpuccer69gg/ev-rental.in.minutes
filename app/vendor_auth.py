@@ -33,7 +33,12 @@ def git_push_vendors(message='Auto: vendor change approved'):
     try:
         if token and repo_url:
             remote = f'https://{token}@{repo_url.replace("https://","")}'
-            subprocess.run(['git', 'remote', 'set-url', 'origin', remote], cwd=repo, check=True)
+            # Add origin if it doesn't exist, else update it
+            check = subprocess.run(['git', 'remote', 'get-url', 'origin'], cwd=repo, capture_output=True)
+            if check.returncode == 0:
+                subprocess.run(['git', 'remote', 'set-url', 'origin', remote], cwd=repo, check=True)
+            else:
+                subprocess.run(['git', 'remote', 'add', 'origin', remote], cwd=repo, check=True)
         subprocess.run(['git', 'config', 'user.email', 'bot@ev-assist.com'], cwd=repo)
         subprocess.run(['git', 'config', 'user.name', 'EV Assist Bot'], cwd=repo)
         subprocess.run(['git', 'add', 'data/vendors.json'], cwd=repo, check=True)
@@ -157,11 +162,18 @@ def submit_change(token: str, change_type: str, payload: dict):
         'review_note': ''
     }
     pending.append(entry)
-    save_pending(pending)
-    send_email(NOTIFY_EMAILS,
+    # Save to local JSON instantly for fast response
+    from app.sheets_db import _save_local_pending
+    _save_local_pending(pending)
+    # Push to Google Sheets in background — non-blocking
+    import threading
+    threading.Thread(target=save_pending, args=(pending,), daemon=True).start()
+    # Send email notification in background
+    threading.Thread(target=send_email, args=(
+        NOTIFY_EMAILS,
         f'New Change Request from {vendor["vendor_name"]}',
         f'Vendor {vendor["vendor_name"]} has submitted a change request.\n\nType: {change_type}\nDetails: {json.dumps(payload, indent=2)}\n\nReview at: https://ev-rental-in-minutes.onrender.com/admin'
-    )
+    ), daemon=True).start()
     return {'ok': True, 'msg': 'Change request submitted. Awaiting admin approval.'}
 
 
@@ -177,7 +189,11 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
     chg['reviewed_at'] = datetime.now().isoformat()
     chg['review_note'] = note
     chg['reviewed_by'] = user['email']
-    save_pending(pending)
+    # Save locally first for instant response, then sync to Sheets in background
+    from app.sheets_db import _save_local_pending
+    import threading
+    _save_local_pending(pending)
+    threading.Thread(target=save_pending, args=(pending,), daemon=True).start()
 
     if action == 'approved':
         vendors = load_vendors()
@@ -196,16 +212,16 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
                 v.get('Make','').lower() == p.get('Make','').lower()
             )]
         save_vendors(vendors)
-        git_push_vendors(f'Auto: {chg["type"]} approved for {chg["vendor_name"]}')
-        send_email([chg['vendor_email']],
+        threading.Thread(target=git_push_vendors, args=(f'Auto: {chg["type"]} approved for {chg["vendor_name"]}',), daemon=True).start()
+        threading.Thread(target=send_email, args=([chg['vendor_email']],
             'Your change request has been APPROVED',
             f'Hi {chg["vendor_name"]},\n\nYour change request has been approved and is now live.\n\n- Flipkart Minutes EV Assist'
-        )
+        ), daemon=True).start()
     else:
-        send_email([chg['vendor_email']],
+        threading.Thread(target=send_email, args=([chg['vendor_email']],
             'Your change request has been REJECTED',
             f'Hi {chg["vendor_name"]},\n\nYour change request has been rejected.\n\nReason: {note}\n\nPlease contact support if you have questions.\n\n- Flipkart Minutes EV Assist'
-        )
+        ), daemon=True).start()
     return {'ok': True, 'msg': f'Change {action}'}
 
 

@@ -99,7 +99,12 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 .av-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,45,98,0.3);}
 .av-section{font-size:11px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.8px;margin:16px 0 10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9;}
 
-/* LOGIN */
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.15);transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:#002d62;color:#ffd600;}
+.toast.error{background:#991b1b;color:#fff;}
+
 .login-wrap{min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(135deg,#001f4d 0%,#002d62 50%,#003d8f 100%);}
 .login-hero{padding:48px 20px 32px;text-align:center;}
 .login-card{background:#fff;border-radius:20px;padding:32px;max-width:400px;margin:0 auto 40px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
@@ -111,6 +116,7 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 
 <!-- LOGIN -->
 <div id="loginSection">
@@ -341,25 +347,32 @@ function renderChangeCard(c, showActions) {
     ${showActions ? `
     <div class="action-row">
       <input class="note-inp" id="note_${c.id}" placeholder="Rejection reason (optional)"/>
-      <button class="approve-btn" onclick="reviewChange('${c.id}','approved')">✅ Approve</button>
-      <button class="reject-btn" onclick="reviewChange('${c.id}','rejected')">❌ Reject</button>
+      <button class="approve-btn" onclick="reviewChange('${c.id}','approved','${(c.vendor_name||'').replace(/'/g,\'')}')">✅ Approve</button>
+      <button class="reject-btn" onclick="reviewChange('${c.id}','rejected','${(c.vendor_name||'').replace(/'/g,\'')}')">❌ Reject</button>
     </div>` : ''}
   </div>`;
 }
 
-async function reviewChange(id, action) {
+async function reviewChange(id, action, vendorName) {
   const note = (document.getElementById('note_' + id) || {}).value || '';
-  if (action === 'rejected' && !note) return alert('Please enter a rejection reason.');
+  if (action === 'rejected' && !note) return showToast('Please enter a rejection reason.', 'error');
+  const confirmMsg = action === 'approved'
+    ? `✅ Approve change request from "${vendorName}"?`
+    : `❌ Reject change request from "${vendorName}"?`;
+  if (!confirm(confirmMsg)) return;
+  const btn = event.target;
+  btn.disabled = true;
+  btn.innerText = action === 'approved' ? 'Approving...' : 'Rejecting...';
   const res = await fetch('/admin/review', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token: adminToken, change_id: id, action, note})});
   const d = await res.json();
-  alert(d.msg);
+  showToast(d.msg || `Change ${action}`, action === 'approved' ? 'success' : 'error');
   loadPending();
 }
 
 async function reviewVendor(id, action) {
   const res = await fetch('/admin/approve-vendor', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token: adminToken, vendor_id: id, action})});
   const d = await res.json();
-  alert(d.ok ? `Vendor ${action}d successfully` : d.msg);
+  showToast(d.ok ? `Vendor ${action}d successfully` : d.msg, d.ok ? 'success' : 'error');
   loadPending();
 }
 
@@ -581,9 +594,39 @@ function renderHistoryCard(c) {
         ${reviewedTime ? `📝 Reviewed: ${reviewedTime}` : ''}
         ${c.review_note ? `&nbsp;·&nbsp; 💬 Note: <span style="color:#374151;font-weight:600;">${c.review_note}</span>` : ''}
       </div>
-      <div style="font-size:11px;color:#9ca3af;">ID: ${c.id || 'N/A'}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:#d1d5db;">ID: ${c.id || 'N/A'}</span>
+        <button onclick="removeFromHistory('${c.id}')" style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🗑 Remove</button>
+      </div>
     </div>
   </div>`;
+}
+
+function removeFromHistory(id) {
+  if (!confirm('Remove this entry from history and marketplace (if approved)?')) return;
+  fetch('/admin/remove-history', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({token: adminToken, change_id: id})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      allHistory = allHistory.filter(c => c.id !== id);
+      document.getElementById('histTotal').innerText = allHistory.length;
+      document.getElementById('histApproved').innerText = allHistory.filter(c=>c.status==='approved').length;
+      document.getElementById('histRejected').innerText = allHistory.filter(c=>c.status==='rejected').length;
+      filterHistory();
+      showToast(d.msg, 'success');
+    } else {
+      showToast(d.msg || 'Error removing', 'error');
+    }
+  });
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.innerText = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 function showMsg(id, msg, type) {

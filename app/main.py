@@ -225,7 +225,42 @@ async def remove_vendor(request: Request):
     return JSONResponse({'ok': True, 'msg': f'Removed successfully'})
 
 
-@app.head("/health")
+@app.post("/admin/remove-history")
+async def remove_history(request: Request):
+    from app.vendor_auth import decode_token, load_vendors, save_vendors, git_push_vendors
+    from app.sheets_db import load_pending, save_pending, _save_local_pending
+    import threading
+    d = await request.json()
+    user = decode_token(d.get('token',''))
+    if not user or user.get('role') != 'admin':
+        return JSONResponse({'ok': False, 'msg': 'Unauthorized'}, status_code=401)
+    change_id = d.get('change_id')
+    pending = load_pending()
+    chg = next((c for c in pending if c['id'] == change_id), None)
+    if not chg:
+        return JSONResponse({'ok': False, 'msg': 'History entry not found'})
+    # Remove from marketplace if it was an approved 'new' entry
+    removed_from_market = False
+    if chg.get('status') == 'approved' and chg.get('type') in ('new', 'edit'):
+        p = chg.get('payload', {})
+        vendors = load_vendors()
+        filtered = [v for v in vendors if not (
+            v.get('Vendor','').lower() == p.get('Vendor','').lower() and
+            v.get('City','').lower() == p.get('City','').lower() and
+            v.get('Make','').lower() == p.get('Make','').lower()
+        )]
+        if len(filtered) < len(vendors):
+            save_vendors(filtered)
+            threading.Thread(target=git_push_vendors, args=(f'Auto: removed {p.get("Vendor")} from marketplace',), daemon=True).start()
+            removed_from_market = True
+    # Remove from history
+    updated = [c for c in pending if c['id'] != change_id]
+    _save_local_pending(updated)
+    threading.Thread(target=save_pending, args=(updated,), daemon=True).start()
+    msg = 'Removed from history' + (' and marketplace' if removed_from_market else '')
+    return JSONResponse({'ok': True, 'msg': msg, 'removed_from_market': removed_from_market})
+
+
 def health():
     return {"status": "EV Assist is running 🚴"}
 
