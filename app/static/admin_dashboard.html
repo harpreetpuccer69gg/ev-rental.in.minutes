@@ -114,7 +114,8 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 .search-box{border:1.5px solid #e8eaf0;border-radius:10px;padding:9px 14px;font-size:13px;font-family:'Inter',sans-serif;background:#fafbfc;transition:all 0.2s;}
 .search-box:focus{outline:none;border-color:#002d62;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
 </style>
-<script defer>
+<script>
+
 let adminToken = localStorage.getItem('admin_token') || '';
 document.addEventListener('DOMContentLoaded', () => { if (adminToken) showDashboard(); });
 
@@ -524,6 +525,21 @@ function showMsg(id, msg, type) {
   el.innerText = msg;
   el.className = 'msg ' + type;
 }
+
+// Expose to global scope for onclick handlers
+window.doAdminLogin = doAdminLogin;
+window.doLogout = doLogout;
+window.togglePwd = togglePwd;
+window.switchTab = switchTab;
+window.reviewChange = reviewChange;
+window.reviewVendor = reviewVendor;
+window.removeVendorEntry = removeVendorEntry;
+window.openAddVendor = openAddVendor;
+window.closeAddVendor = closeAddVendor;
+window.submitAddVendor = submitAddVendor;
+window.filterVendors = filterVendors;
+window.filterHistory = filterHistory;
+window.removeFromHistory = removeFromHistory;
 </script>
 </head>
 <body>
