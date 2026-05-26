@@ -1,43 +1,35 @@
-"""
-Persistent storage for vendor auth and pending changes using Google Sheets.
-Sheet tabs:
-  - "Vendor Auth"    → vendors_auth data
-  - "Pending Changes" → pending_changes data
-Each row stores one JSON-encoded record in column A.
-"""
 import json, os
-from app.sheets import get_sheet
 import gspread
 from google.oauth2.service_account import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
+_spreadsheet_cache = None
+
 def _get_spreadsheet():
-    """Get the full spreadsheet object (not just one worksheet)."""
+    global _spreadsheet_cache
+    if _spreadsheet_cache is not None:
+        return _spreadsheet_cache
     creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
     sheet_id = os.getenv("GOOGLE_SHEET_ID", "")
     if creds_json:
-        import json as _json
-        info = _json.loads(creds_json)
+        info = json.loads(creds_json)
         creds = Credentials.from_service_account_info(info, scopes=SCOPES)
     else:
         creds_file = os.getenv("GOOGLE_CREDS_FILE", "credentials.json")
         creds = Credentials.from_service_account_file(creds_file, scopes=SCOPES)
     client = gspread.authorize(creds)
-    return client.open_by_key(sheet_id)
+    _spreadsheet_cache = client.open_by_key(sheet_id)
+    return _spreadsheet_cache
 
 def _get_tab(title: str):
-    """Get or create a worksheet tab by title."""
-    spreadsheet = _get_spreadsheet()
     try:
-        return spreadsheet.worksheet(title)
-    except Exception:
-        ws = spreadsheet.add_worksheet(title=title, rows=1000, cols=2)
-        return ws
+        return _get_spreadsheet().worksheet(title)
+    except gspread.exceptions.WorksheetNotFound:
+        return _get_spreadsheet().add_worksheet(title=title, rows=1000, cols=2)
 
 def _read_all(title: str) -> list:
-    ws = _get_tab(title)
-    rows = ws.col_values(1)  # all values in column A
+    rows = _get_tab(title).col_values(1)
     result = []
     for r in rows:
         if r and r.strip():
@@ -53,7 +45,7 @@ def _write_all(title: str, data: list):
     if data:
         ws.update('A1', [[json.dumps(row)] for row in data])
 
-# ── Vendor Auth ──────────────────────────────────────────────────────────────
+# ── Vendor Auth ───────────────────────────────────────────────────────────────
 
 def load_auth() -> list:
     try:
@@ -85,7 +77,7 @@ def save_pending(data: list):
         print(f"[sheets_db] save_pending error: {e}")
         _save_local_pending(data)
 
-# ── Local JSON fallbacks (in case Sheets is down) ────────────────────────────
+# ── Local JSON fallbacks ──────────────────────────────────────────────────────
 
 AUTH_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'vendors_auth.json'))
 PENDING_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'pending_changes.json'))
@@ -96,7 +88,9 @@ def _load_local_auth():
     except: return []
 
 def _save_local_auth(data):
-    with open(AUTH_PATH, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+    try:
+        with open(AUTH_PATH, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+    except: pass
 
 def _load_local_pending():
     try:
@@ -104,4 +98,6 @@ def _load_local_pending():
     except: return []
 
 def _save_local_pending(data):
-    with open(PENDING_PATH, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+    try:
+        with open(PENDING_PATH, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2)
+    except: pass
