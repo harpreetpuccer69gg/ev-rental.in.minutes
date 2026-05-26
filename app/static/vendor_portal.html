@@ -5,66 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vendor Portal - EV Assist</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
-.header{background:#002d62;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
-.header h1{color:#ffd600;font-size:18px;font-weight:900;}
-.header span{color:rgba(255,255,255,0.8);font-size:13px;}
-.logout-btn{background:#ffd600;color:#002d62;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;}
-.main{max-width:600px;margin:0 auto;padding:20px 16px 60px;}
-.card{background:#fff;border-radius:14px;padding:24px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
-.card-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:18px;}
-.tabs{display:flex;gap:0;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1.5px solid #e0e0e0;}
-.tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#757575;border:none;}
-.tab.active{background:#002d62;color:#ffd600;}
-.inp{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:12px;font-weight:500;}
-.inp:focus{outline:none;border-color:#002d62;}
-.btn{width:100%;background:#ffd600;color:#002d62;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:4px;}
-.btn:hover{background:#ffca00;}
-.btn-outline{background:#fff;color:#002d62;border:1.5px solid #002d62;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;}
-.msg{padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;}
-.msg.success{background:#e8f5e9;color:#2e7d32;display:block;}
-.msg.error{background:#ffebee;color:#c62828;display:block;}
-.section{display:none;}
-.section.show{display:block;}
-.listing-card{background:#f8faff;border-radius:12px;padding:14px;margin-bottom:12px;border:1.5px solid #e3eaff;}
-.listing-name{font-size:14px;font-weight:800;color:#002d62;margin-bottom:4px;}
-.listing-meta{font-size:12px;color:#757575;margin-bottom:10px;}
-.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
-.badge-hi{background:#e3f2fd;color:#1565c0;}
-.badge-lo{background:#fff3e0;color:#e65100;}
-.badge-ec{background:#e8f5e9;color:#2e7d32;}
-.edit-btn{background:#002d62;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-right:8px;}
-.del-btn{background:#ffebee;color:#c62828;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;}
+body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#f0f4ff 0%,#f8f9ff 100%);color:#1a1a2e;min-height:100vh;}
+
+/* HEADER */
+.header{background:linear-gradient(90deg,#002d62 0%,#1a4a8a 100%);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(0,45,98,0.3);}
+.header-left{display:flex;align-items:center;gap:12px;}
+.header h1{color:#ffd600;font-size:17px;font-weight:800;letter-spacing:-0.3px;}
+.header-vendor{background:rgba(255,214,0,0.15);border:1px solid rgba(255,214,0,0.3);color:#ffd600;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.logout-btn{background:transparent;color:#ffd600;border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.logout-btn:hover{background:#ffd600;color:#002d62;}
+
+/* MAIN */
+.main{max-width:640px;margin:0 auto;padding:24px 16px 80px;}
+
+/* CARDS */
+.card{background:#fff;border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,45,98,0.07);border:1px solid rgba(0,45,98,0.06);}
+.card-title{font-size:15px;font-weight:800;color:#002d62;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.card-title-icon{width:28px;height:28px;background:linear-gradient(135deg,#002d62,#1a6ed8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+
+/* TABS */
+.tabs{display:flex;gap:0;margin-bottom:20px;border-radius:14px;overflow:hidden;background:#f0f4ff;padding:4px;}
+.tab{flex:1;padding:11px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;border:none;border-radius:10px;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.tab.active{background:#fff;color:#002d62;box-shadow:0 2px 8px rgba(0,45,98,0.12);}
+
+/* INPUTS */
+.inp{width:100%;border:1.5px solid #e8ecf4;border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:12px;font-weight:500;background:#fafbff;color:#1a1a2e;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.inp:focus{outline:none;border-color:#002d62;background:#fff;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
+select.inp{background:#fafbff;cursor:pointer;}
+label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* BUTTONS */
+.btn{width:100%;background:linear-gradient(135deg,#ffd600,#ffca00);color:#002d62;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;margin-top:4px;transition:all 0.2s;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(255,214,0,0.35);}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,214,0,0.45);}
+.btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.btn-outline{background:#fff;color:#002d62;border:1.5px solid #002d62;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn-outline:hover{background:#002d62;color:#ffd600;}
+
+/* MESSAGES */
+.msg{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none;}
+.msg.success{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:block;}
+.msg.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;display:block;}
+
+/* LISTING CARDS */
+.listing-card{background:linear-gradient(135deg,#f8faff,#f0f4ff);border-radius:16px;padding:16px;margin-bottom:12px;border:1.5px solid #e3eaff;transition:all 0.2s;}
+.listing-card:hover{box-shadow:0 4px 16px rgba(0,45,98,0.1);transform:translateY(-1px);}
+.listing-name{font-size:14px;font-weight:800;color:#002d62;margin-bottom:3px;}
+.listing-meta{font-size:12px;color:#6b7280;margin-bottom:10px;line-height:1.5;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+.badge-hi{background:#dbeafe;color:#1d4ed8;}
+.badge-lo{background:#fff7ed;color:#c2410c;}
+.badge-ec{background:#dcfce7;color:#15803d;}
+.edit-btn{background:linear-gradient(135deg,#002d62,#1a4a8a);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;margin-right:8px;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.edit-btn:hover{opacity:0.85;}
+.del-btn{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.del-btn:hover{background:#fee2e2;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.show{display:flex;}
-.modal{background:#fff;border-radius:16px;padding:24px;width:92%;max-width:480px;max-height:90vh;overflow-y:auto;}
-.modal-title{font-size:16px;font-weight:900;color:#002d62;margin-bottom:16px;}
-.modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:#757575;}
-label{font-size:12px;font-weight:700;color:#002d62;margin-bottom:4px;display:block;}
-select.inp{background:#fafafa;}
-.img-preview{width:100%;height:140px;object-fit:contain;border-radius:8px;border:1px solid #e0e0e0;margin-bottom:8px;display:none;}
-.pending-badge{background:#fff8e1;color:#f57f17;border:1px solid #ffe082;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;}
-.approved-badge{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;}
+.modal{background:#fff;border-radius:24px;padding:0;width:94%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.2);}
+.modal-header{background:linear-gradient(135deg,#002d62,#1a4a8a);padding:20px 24px;border-radius:24px 24px 0 0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.modal-title{font-size:16px;font-weight:800;color:#fff;margin:0;}
+.modal-close{background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.modal-close:hover{background:rgba(255,255,255,0.25);}
+.modal-body{padding:24px;}
+
+/* FORM SECTIONS */
+.form-section{background:#f8faff;border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid #e8ecf4;}
+.form-section-title{font-size:11px;font-weight:800;color:#002d62;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* BADGES */
+.pending-badge{background:#fffbeb;color:#d97706;border:1px solid #fde68a;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;}
+.approved-badge{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;}
+
+/* AUTH PAGE */
+.auth-hero{background:linear-gradient(135deg,#002d62 0%,#1a4a8a 60%,#0d6efd 100%);padding:48px 20px 40px;text-align:center;position:relative;overflow:hidden;}
+.auth-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,214,0,0.08);border-radius:50%;}
+.auth-hero::after{content:'';position:absolute;bottom:-60px;left:-30px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;}
+.auth-hero img{height:52px;margin-bottom:16px;position:relative;z-index:1;}
+.auth-hero-title{color:#ffd600;font-size:22px;font-weight:900;position:relative;z-index:1;letter-spacing:-0.5px;}
+.auth-hero-sub{color:rgba(255,255,255,0.7);font-size:13px;margin-top:6px;position:relative;z-index:1;}
+.auth-pills{display:flex;justify-content:center;gap:8px;margin-top:16px;position:relative;z-index:1;}
+.auth-pill{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);font-size:11px;font-weight:600;padding:5px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.2);}
 </style>
 </head>
 <body>
 
 <!-- AUTH SECTION -->
 <div id="authSection">
-  <div style="background:#002d62;padding:30px 20px;text-align:center;">
-    <img src="/static/images/logo.png" style="height:48px;margin-bottom:12px;"/>
-    <div style="color:#ffd600;font-size:20px;font-weight:900;">Vendor Portal</div>
-    <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:4px;">Manage your EV listings</div>
+  <div class="auth-hero">
+    <img src="/static/images/logo.png" alt="Flipkart Minutes"/>
+    <div class="auth-hero-title">⚡ Vendor Portal</div>
+    <div class="auth-hero-sub">Manage your EV listings on Flipkart Minutes</div>
+    <div class="auth-pills">
+      <span class="auth-pill">🛵 List EVs</span>
+      <span class="auth-pill">📊 Track Leads</span>
+      <span class="auth-pill">✏️ Edit Anytime</span>
+    </div>
   </div>
-  <div style="max-width:400px;margin:24px auto;padding:0 16px;">
+  <div style="max-width:420px;margin:24px auto;padding:0 16px;">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('login')">Login</button>
-      <button class="tab" onclick="switchTab('register')">Register</button>
+      <button class="tab active" onclick="switchTab('login')">🔐 Login</button>
+      <button class="tab" onclick="switchTab('register')">📝 Register</button>
     </div>
 
     <!-- LOGIN -->
     <div id="loginTab" class="card">
+      <div class="card-title"><div class="card-title-icon">🔑</div>Welcome Back</div>
       <div id="loginMsg" class="msg"></div>
       <label>Email Address</label>
       <input class="inp" id="loginEmail" type="email" placeholder="your@email.com"/>
@@ -75,6 +125,7 @@ select.inp{background:#fafafa;}
 
     <!-- REGISTER -->
     <div id="registerTab" class="card" style="display:none;">
+      <div class="card-title"><div class="card-title-icon">🏢</div>Create Account</div>
       <div id="regMsg" class="msg"></div>
       <label>Vendor / Company Name</label>
       <input class="inp" id="regName" type="text" placeholder="e.g. Bounce, Yulu"/>
@@ -87,7 +138,7 @@ select.inp{background:#fafafa;}
       <label>Confirm Password</label>
       <input class="inp" id="regPass2" type="password" placeholder="Repeat password"/>
       <button class="btn" onclick="doRegister()">Submit Registration →</button>
-      <p style="font-size:12px;color:#9e9e9e;margin-top:12px;text-align:center;">Registration requires admin approval before login access.</p>
+      <p style="font-size:12px;color:#9ca3af;margin-top:14px;text-align:center;line-height:1.6;">⏳ Registration requires admin approval before login access.</p>
     </div>
   </div>
 </div>
@@ -95,27 +146,27 @@ select.inp{background:#fafafa;}
 <!-- DASHBOARD SECTION -->
 <div id="dashSection" style="display:none;">
   <div class="header">
-    <div>
-      <h1>EV Assist — Vendor Portal</h1>
-      <span id="vendorNameHeader"></span>
+    <div class="header-left">
+      <img src="/static/images/logo.png" style="height:32px;"/>
+      <div>
+        <h1>EV Assist — Vendor Portal</h1>
+        <span class="header-vendor" id="vendorNameHeader"></span>
+      </div>
     </div>
     <button class="logout-btn" onclick="doLogout()">Logout</button>
   </div>
 
   <div class="main">
-    <!-- My Listings -->
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:0;">My EV Listings</div>
+        <div class="card-title" style="margin-bottom:0;"><div class="card-title-icon">🛵</div>My EV Listings</div>
         <button class="btn-outline" onclick="openAddModal()">+ Add New EV</button>
       </div>
-      <div id="listingsArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+      <div id="listingsArea"><div style="text-align:center;color:#9ca3af;padding:30px;font-size:13px;">Loading...</div></div>
     </div>
-
-    <!-- My Requests -->
     <div class="card">
-      <div class="card-title">My Change Requests</div>
-      <div id="requestsArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+      <div class="card-title"><div class="card-title-icon">📎</div>My Change Requests</div>
+      <div id="requestsArea"><div style="text-align:center;color:#9ca3af;padding:30px;font-size:13px;">Requests will appear here after submission.</div></div>
     </div>
   </div>
 </div>
@@ -123,73 +174,93 @@ select.inp{background:#fafafa;}
 <!-- EDIT/ADD MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-title" id="modalTitle">Edit EV Listing</div>
-    <div id="modalMsg" class="msg"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Edit EV Listing</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalMsg" class="msg"></div>
 
-    <label>City</label>
-    <input class="inp" id="fCity" placeholder="e.g. Bangalore"/>
-    <label>Make / Model</label>
-    <input class="inp" id="fMake" placeholder="e.g. Bounce Infinity E1"/>
-    <label>Type</label>
-    <select class="inp" id="fType">
-      <option>Hi-Speed</option>
-      <option>Low speed</option>
-      <option>E-Cycle</option>
-    </select>
-    <label>Weekly Rent (₹)</label>
-    <input class="inp" id="fRent" placeholder="e.g. 1750"/>
-    <label>Range (km)</label>
-    <input class="inp" id="fRange" placeholder="e.g. 75"/>
-    <label>Security Deposit (₹)</label>
-    <input class="inp" id="fDeposit" placeholder="e.g. 500"/>
-    <label>Refundable Deposit (₹)</label>
-    <input class="inp" id="fRefund" placeholder="e.g. 500"/>
-    <label>Charging / Swap</label>
-    <select class="inp" id="fCharge">
-      <option>Charging</option>
-      <option>Swap</option>
-    </select>
-    <label>SPOC Name</label>
-    <input class="inp" id="fSpoc" placeholder="Contact person name"/>
-    <label>SPOC Phone</label>
-    <input class="inp" id="fSpocPhone" placeholder="Contact number"/>
-    <label>EV Images <span style="font-size:11px;color:#9e9e9e;font-weight:500;">(3 required · JPG/PNG/WEBP · max 2MB each · recommended 800×600px)</span></label>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px;">
-      <div onclick="document.getElementById('fImage1').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
-        <span id="img1Icon" style="font-size:22px;">📷</span>
-        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 1</span>
-        <img id="imgPreview1" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
-        <input type="file" id="fImage1" accept="image/*" style="display:none;" onchange="previewImg(this,1)"/>
+      <div class="form-section">
+        <div class="form-section-title">📍 Basic Info</div>
+        <div class="form-row">
+          <div><label>City</label><input class="inp" id="fCity" placeholder="e.g. Bangalore"/></div>
+          <div><label>Make / Model</label><input class="inp" id="fMake" placeholder="e.g. Bounce E1"/></div>
+        </div>
+        <label>Type</label>
+        <select class="inp" id="fType">
+          <option>Hi-Speed</option>
+          <option>Low speed</option>
+          <option>E-Cycle</option>
+        </select>
       </div>
-      <div onclick="document.getElementById('fImage2').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
-        <span id="img2Icon" style="font-size:22px;">📷</span>
-        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 2</span>
-        <img id="imgPreview2" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
-        <input type="file" id="fImage2" accept="image/*" style="display:none;" onchange="previewImg(this,2)"/>
+
+      <div class="form-section">
+        <div class="form-section-title">💰 Pricing & Range</div>
+        <div class="form-row">
+          <div><label>Weekly Rent (₹)</label><input class="inp" id="fRent" placeholder="e.g. 1750"/></div>
+          <div><label>Range (km)</label><input class="inp" id="fRange" placeholder="e.g. 75"/></div>
+        </div>
+        <div class="form-row">
+          <div><label>Security Deposit (₹)</label><input class="inp" id="fDeposit" placeholder="e.g. 500"/></div>
+          <div><label>Refundable Deposit (₹)</label><input class="inp" id="fRefund" placeholder="e.g. 500"/></div>
+        </div>
+        <label>Charging / Swap</label>
+        <select class="inp" id="fCharge">
+          <option>Charging</option>
+          <option>Swap</option>
+        </select>
       </div>
-      <div onclick="document.getElementById('fImage3').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa;">
-        <span id="img3Icon" style="font-size:22px;">📷</span>
-        <span style="font-size:10px;color:#9e9e9e;margin-top:4px;">Image 3</span>
-        <img id="imgPreview3" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;"/>
-        <input type="file" id="fImage3" accept="image/*" style="display:none;" onchange="previewImg(this,3)"/>
+
+      <div class="form-section">
+        <div class="form-section-title">👤 Contact (SPOC)</div>
+        <div class="form-row">
+          <div><label>SPOC Name</label><input class="inp" id="fSpoc" placeholder="Contact person"/></div>
+          <div><label>SPOC Phone</label><input class="inp" id="fSpocPhone" placeholder="Contact number"/></div>
+        </div>
       </div>
+
+      <div class="form-section">
+        <div class="form-section-title">🖼️ Media</div>
+        <label>EV Images <span style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0;">(3 required · JPG/PNG/WEBP · max 2MB · 800×600px)</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div onclick="document.getElementById('fImage1').click()" style="border:2px dashed #c7d2fe;border-radius:12px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#f5f7ff;transition:all 0.2s;">
+            <span id="img1Icon" style="font-size:20px;">📷</span>
+            <span style="font-size:10px;color:#9ca3af;margin-top:4px;font-weight:600;">Image 1</span>
+            <img id="imgPreview1" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;"/>
+            <input type="file" id="fImage1" accept="image/*" style="display:none;" onchange="previewImg(this,1)"/>
+          </div>
+          <div onclick="document.getElementById('fImage2').click()" style="border:2px dashed #c7d2fe;border-radius:12px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#f5f7ff;transition:all 0.2s;">
+            <span id="img2Icon" style="font-size:20px;">📷</span>
+            <span style="font-size:10px;color:#9ca3af;margin-top:4px;font-weight:600;">Image 2</span>
+            <img id="imgPreview2" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;"/>
+            <input type="file" id="fImage2" accept="image/*" style="display:none;" onchange="previewImg(this,2)"/>
+          </div>
+          <div onclick="document.getElementById('fImage3').click()" style="border:2px dashed #c7d2fe;border-radius:12px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#f5f7ff;transition:all 0.2s;">
+            <span id="img3Icon" style="font-size:20px;">📷</span>
+            <span style="font-size:10px;color:#9ca3af;margin-top:4px;font-weight:600;">Image 3</span>
+            <img id="imgPreview3" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:10px;"/>
+            <input type="file" id="fImage3" accept="image/*" style="display:none;" onchange="previewImg(this,3)"/>
+          </div>
+        </div>
+        <div id="imgError" style="display:none;color:#dc2626;font-size:12px;margin-bottom:8px;background:#fef2f2;padding:8px 12px;border-radius:8px;border:1px solid #fecaca;">⚠️ Please upload all 3 images.</div>
+        <label style="margin-top:4px;">EV Video <span style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0;">(optional · MP4 · max 30MB · 1280×720px)</span></label>
+        <div onclick="document.getElementById('fVideo').click()" style="border:2px dashed #c7d2fe;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#f5f7ff;margin-bottom:12px;transition:all 0.2s;">
+          <span style="font-size:22px;">🎥</span>
+          <div><div id="videoName" style="font-size:12px;color:#6b7280;font-weight:600;">Click to upload video</div><div style="font-size:10px;color:#9ca3af;margin-top:2px;">MP4 format only</div></div>
+          <input type="file" id="fVideo" accept="video/mp4" style="display:none;" onchange="previewVideo(this)"/>
+        </div>
+        <video id="videoPreview" style="display:none;width:100%;border-radius:12px;margin-bottom:12px;" controls></video>
+      </div>
+
+      <input type="hidden" id="fImageUrl"/>
+      <input type="hidden" id="fImageUrl2"/>
+      <input type="hidden" id="fImageUrl3"/>
+      <input type="hidden" id="fVideoUrl"/>
+      <input type="hidden" id="fEditMode"/>
+      <input type="hidden" id="fOriginalData"/>
+      <button class="btn" onclick="submitChange()">Submit for Approval →</button>
     </div>
-    <div id="imgError" style="display:none;color:#c62828;font-size:12px;margin-bottom:8px;">⚠️ Please upload all 3 images.</div>
-    <label style="margin-top:4px;">EV Video <span style="font-size:11px;color:#9e9e9e;font-weight:500;">(optional · MP4 · max 30MB · recommended 1280×720px)</span></label>
-    <div onclick="document.getElementById('fVideo').click()" style="border:1.5px dashed #e0e0e0;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer;background:#fafafa;margin-bottom:12px;">
-      <span style="font-size:22px;">🎥</span>
-      <span id="videoName" style="font-size:12px;color:#9e9e9e;">Click to upload video</span>
-      <input type="file" id="fVideo" accept="video/mp4" style="display:none;" onchange="previewVideo(this)"/>
-    </div>
-    <video id="videoPreview" style="display:none;width:100%;border-radius:8px;margin-bottom:12px;" controls></video>
-    <input type="hidden" id="fImageUrl"/>
-    <input type="hidden" id="fImageUrl2"/>
-    <input type="hidden" id="fImageUrl3"/>
-    <input type="hidden" id="fVideoUrl"/>
-    <input type="hidden" id="fEditMode"/>
-    <input type="hidden" id="fOriginalData"/>
-    <button class="btn" onclick="submitChange()">Submit for Approval →</button>
   </div>
 </div>
 
