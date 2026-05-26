@@ -89,27 +89,43 @@ def admin_dashboard():
 
 @app.post("/vendor/register")
 async def vendor_register(request: Request):
-    from app.vendor_auth import register_vendor
-    d = await request.json()
-    return JSONResponse(register_vendor(d['email'], d['password'], d['vendor_name'], d.get('phone','')))
+    try:
+        from app.vendor_auth import register_vendor
+        d = await request.json()
+        return JSONResponse(register_vendor(d['email'], d['password'], d['vendor_name'], d.get('phone','')))
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 @app.post("/vendor/login")
 async def vendor_login(request: Request):
-    from app.vendor_auth import login_vendor
-    d = await request.json()
-    return JSONResponse(login_vendor(d['email'], d['password']))
+    try:
+        from app.vendor_auth import login_vendor
+        d = await request.json()
+        return JSONResponse(login_vendor(d['email'], d['password']))
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 @app.post("/admin/login")
 async def admin_login(request: Request):
-    from app.vendor_auth import login_admin
-    d = await request.json()
-    return JSONResponse(login_admin(d['email'], d['password']))
+    try:
+        from app.vendor_auth import login_admin
+        d = await request.json()
+        return JSONResponse(login_admin(d['email'], d['password']))
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 @app.post("/vendor/propose")
 async def vendor_propose(request: Request):
-    from app.vendor_auth import submit_change
-    d = await request.json()
-    return JSONResponse(submit_change(d['token'], d['type'], d['payload']))
+    try:
+        from app.vendor_auth import submit_change
+        d = await request.json()
+        return JSONResponse(submit_change(d['token'], d['type'], d['payload']))
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 @app.post("/vendor/upload-image")
 async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
@@ -141,25 +157,37 @@ async def admin_approve_vendor(request: Request):
 
 @app.get("/admin/pending")
 async def get_pending(request: Request):
-    from app.vendor_auth import decode_token, load_pending, load_auth, ADMIN_EMAILS
-    token = request.headers.get('Authorization','').replace('Bearer ','')
-    user = decode_token(token)
-    if not user or user.get('role') != 'admin':
-        return JSONResponse({'ok': False}, status_code=401)
-    return JSONResponse({'changes': load_pending(), 'vendors': [v for v in load_auth() if v['status']=='pending']})
+    try:
+        from app.vendor_auth import decode_token, ADMIN_EMAILS
+        from app.sheets_db import load_pending, load_auth
+        token = request.headers.get('Authorization','').replace('Bearer ','')
+        user = decode_token(token)
+        if not user or user.get('role') != 'admin':
+            return JSONResponse({'ok': False}, status_code=401)
+        return JSONResponse({'changes': load_pending(), 'vendors': load_auth()})
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 @app.get("/vendor/my-listings")
 async def my_listings(request: Request):
-    from app.vendor_auth import decode_token, load_auth, load_vendors
-    token = request.headers.get('Authorization','').replace('Bearer ','')
-    user = decode_token(token)
-    if not user or user.get('role') != 'vendor':
-        return JSONResponse({'ok': False}, status_code=401)
-    auth = load_auth()
-    vendor = next((v for v in auth if v['email'] == user['email']), None)
-    vendors = load_vendors()
-    my = [v for v in vendors if v.get('Vendor','').lower() == vendor['vendor_name'].lower()]
-    return JSONResponse({'ok': True, 'listings': my, 'vendor_name': vendor['vendor_name']})
+    try:
+        from app.vendor_auth import decode_token, load_vendors
+        from app.sheets_db import load_auth
+        token = request.headers.get('Authorization','').replace('Bearer ','')
+        user = decode_token(token)
+        if not user or user.get('role') != 'vendor':
+            return JSONResponse({'ok': False}, status_code=401)
+        auth = load_auth()
+        vendor = next((v for v in auth if v['email'] == user['email']), None)
+        if not vendor:
+            return JSONResponse({'ok': False, 'msg': 'Vendor not found'}, status_code=404)
+        vendors = load_vendors()
+        my = [v for v in vendors if v.get('Vendor','').lower() == vendor['vendor_name'].lower()]
+        return JSONResponse({'ok': True, 'listings': my, 'vendor_name': vendor['vendor_name']})
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({'ok': False, 'msg': str(e)}, status_code=500)
 
 
 @app.post("/admin/add-vendor")
