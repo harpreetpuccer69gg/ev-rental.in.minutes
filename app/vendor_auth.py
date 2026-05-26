@@ -1,9 +1,8 @@
 import json, os, bcrypt, jwt, smtplib
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
+from app.sheets_db import load_auth, save_auth, load_pending, save_pending
 
-AUTH_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'vendors_auth.json'))
-PENDING_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'pending_changes.json'))
 VENDORS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'vendors.json'))
 
 SECRET = os.getenv('JWT_SECRET', 'ev-assist-secret-2025')
@@ -17,28 +16,6 @@ NOTIFY_EMAILS = ['navin.chandra@flipkart.com', 'harpreetsingh7.vc@flipkart.com']
 SMTP_USER = os.getenv('SMTP_USER', '')
 SMTP_PASS = os.getenv('SMTP_PASS', '')
 
-
-def load_auth():
-    try:
-        with open(AUTH_PATH, encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return []
-
-def save_auth(data):
-    with open(AUTH_PATH, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-def load_pending():
-    try:
-        with open(PENDING_PATH, encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return []
-
-def save_pending(data):
-    with open(PENDING_PATH, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def load_vendors():
     with open(VENDORS_PATH, encoding='utf-8') as f:
@@ -96,12 +73,11 @@ def register_vendor(email: str, password: str, vendor_name: str, phone: str):
         'password': hash_password(password),
         'vendor_name': vendor_name,
         'phone': phone,
-        'status': 'pending',  # needs admin approval
+        'status': 'pending',
         'created_at': datetime.now().isoformat()
     }
     auth.append(entry)
     save_auth(auth)
-    # Notify admins
     send_email(NOTIFY_EMAILS,
         f'New Vendor Registration: {vendor_name}',
         f'New vendor registration request:\n\nName: {vendor_name}\nEmail: {email}\nPhone: {phone}\n\nPlease review at: https://ev-rental-in-minutes.onrender.com/admin'
@@ -151,7 +127,7 @@ def submit_change(token: str, change_type: str, payload: dict):
         'vendor_id': vendor['id'],
         'vendor_name': vendor['vendor_name'],
         'vendor_email': vendor['email'],
-        'type': change_type,  # 'edit' or 'new'
+        'type': change_type,
         'payload': payload,
         'status': 'pending',
         'submitted_at': datetime.now().isoformat(),
@@ -175,7 +151,7 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
     chg = next((c for c in pending if c['id'] == change_id), None)
     if not chg:
         return {'ok': False, 'msg': 'Change not found'}
-    chg['status'] = action  # 'approved' or 'rejected'
+    chg['status'] = action
     chg['reviewed_at'] = datetime.now().isoformat()
     chg['review_note'] = note
     chg['reviewed_by'] = user['email']
@@ -199,12 +175,12 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
             )]
         save_vendors(vendors)
         send_email([chg['vendor_email']],
-            f'Your change request has been APPROVED',
+            'Your change request has been APPROVED',
             f'Hi {chg["vendor_name"]},\n\nYour change request has been approved and is now live.\n\nDetails: {json.dumps(chg["payload"], indent=2)}\n\n- Flipkart Minutes EV Assist'
         )
     else:
         send_email([chg['vendor_email']],
-            f'Your change request has been REJECTED',
+            'Your change request has been REJECTED',
             f'Hi {chg["vendor_name"]},\n\nYour change request has been rejected.\n\nReason: {note}\n\nPlease contact support if you have questions.\n\n- Flipkart Minutes EV Assist'
         )
     return {'ok': True, 'msg': f'Change {action}'}
