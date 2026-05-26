@@ -114,126 +114,9 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 .search-box{border:1.5px solid #e8eaf0;border-radius:10px;padding:9px 14px;font-size:13px;font-family:'Inter',sans-serif;background:#fafbfc;transition:all 0.2s;}
 .search-box:focus{outline:none;border-color:#002d62;box-shadow:0 0 0 3px rgba(0,45,98,0.08);}
 </style>
-</head>
-<body>
-<div class="toast" id="toast"></div>
-
-<!-- FUNCTIONS MUST LOAD BEFORE HTML RENDERS -->
-<script>
-function doAdminLogin(){_doAdminLogin();}
-function doLogout(){localStorage.removeItem('admin_token');location.reload();}
-function togglePwd(){const inp=document.getElementById('adminPass');const btn=inp.nextElementSibling;if(inp.type==='password'){inp.type='text';btn.innerText='🙈';}else{inp.type='password';btn.innerText='👁';}}
-</script>
-
-<!-- LOGIN -->
-<div id="loginSection">
-  <div class="login-wrap">
-    <div class="login-hero">
-      <img src="/static/images/logo.png" style="height:52px;margin-bottom:16px;filter:brightness(0) invert(1);"/>
-      <div style="color:#ffd600;font-size:22px;font-weight:900;margin-bottom:6px;">Admin Dashboard</div>
-      <div style="color:rgba(255,255,255,0.6);font-size:13px;">Flipkart Minutes · EV Assist</div>
-    </div>
-    <div style="padding:0 16px;">
-      <div class="login-card">
-        <div class="login-title">Welcome back 👋</div>
-        <div class="login-sub">Sign in to manage EV listings</div>
-        <div id="loginMsg" class="msg"></div>
-        <label class="inp-label">Email Address</label>
-        <input class="inp" id="adminEmail" type="email" placeholder="your@flipkart.com" style="margin-bottom:14px;"/>
-        <label class="inp-label">Password</label>
-        <div style="position:relative;margin-bottom:20px;">
-          <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
-          <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
-        </div>
-        <button class="btn" id="loginBtn" onclick="doAdminLogin()">Sign In →</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashSection" style="display:none;">
-  <div class="header">
-    <h1>⚡ EV Assist · Admin</h1>
-    <div class="header-right">
-      <span class="admin-badge">🔐 Admin</span>
-      <button class="logout-btn" onclick="doLogout()">Logout</button>
-    </div>
-  </div>
-
-  <div class="main">
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-icon">⏳</div><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending Changes</div></div>
-      <div class="stat-box"><div class="stat-icon">🏪</div><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Pending Vendors</div></div>
-      <div class="stat-box"><div class="stat-icon">📋</div><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Requests</div></div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('changes')">⏳ Change Requests</button>
-      <button class="tab" onclick="switchTab('vendors')">🏪 Vendor Approvals</button>
-      <button class="tab" onclick="switchTab('manage')">⚙️ Manage Vendors</button>
-      <button class="tab" onclick="switchTab('history')">📜 History</button>
-    </div>
-
-    <!-- Change Requests -->
-    <div id="changesTab">
-      <div id="changesArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
-    </div>
-
-    <!-- Vendor Approvals -->
-    <div id="vendorsTab" style="display:none;">
-      <div id="vendorsArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
-    </div>
-
-    <!-- History -->
-    <div id="historyTab" style="display:none;">
-      <!-- History Summary Stats -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
-        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-          <div style="font-size:24px;font-weight:900;color:#002d62;" id="histTotal">0</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">📋 Total Requests</div>
-        </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-          <div style="font-size:24px;font-weight:900;color:#166534;" id="histApproved">0</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">✅ Approved</div>
-        </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
-          <div style="font-size:24px;font-weight:900;color:#991b1b;" id="histRejected">0</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">❌ Rejected</div>
-        </div>
-      </div>
-      <!-- Filter Bar -->
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border:1px solid #e8eaf0;">
-        <span style="font-size:12px;font-weight:700;color:#6b7280;">Filter:</span>
-        <button onclick="filterHistory('all')" id="hf-all" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #002d62;background:#002d62;color:#ffd600;font-family:'Inter',sans-serif;">All</button>
-        <button onclick="filterHistory('approved')" id="hf-approved" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">✅ Approved</button>
-        <button onclick="filterHistory('rejected')" id="hf-rejected" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">❌ Rejected</button>
-        <input id="histSearch" placeholder="🔍 Search vendor..." oninput="filterHistory()" style="margin-left:auto;border:1.5px solid #e8eaf0;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'Inter',sans-serif;background:#fafbfc;outline:none;width:180px;"/>
-      </div>
-      <div id="historyArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
-    </div>
-
-    <!-- Manage Vendors -->
-    <div id="manageTab" style="display:none;">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-          <div class="card-title" style="margin-bottom:0;">Live Vendors</div>
-          <div style="display:flex;gap:8px;align-items:center;">
-          <input id="vendorSearch" placeholder="🔍 Search vendor or city..." class="search-box" style="width:200px;" oninput="filterVendors()"/>
-            <button onclick="openAddVendor()" style="background:linear-gradient(135deg,#002d62,#003d8f);color:#ffd600;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">+ Add EV</button>
-          </div>
-        </div>
-        <div id="manageArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
+<script defer>
 let adminToken = localStorage.getItem('admin_token') || '';
-if (adminToken) showDashboard();
+document.addEventListener('DOMContentLoaded', () => { if (adminToken) showDashboard(); });
 
 function togglePwd() {
   const inp = document.getElementById('adminPass');
@@ -242,7 +125,7 @@ function togglePwd() {
   else { inp.type = 'password'; btn.innerText = '👁'; }
 }
 
-async function _doAdminLogin() {
+async function doAdminLogin() {
   const email = document.getElementById('adminEmail').value.trim();
   const pass = document.getElementById('adminPass').value;
   if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
@@ -642,6 +525,115 @@ function showMsg(id, msg, type) {
   el.className = 'msg ' + type;
 }
 </script>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="loginSection">
+  <div class="login-wrap">
+    <div class="login-hero">
+      <img src="/static/images/logo.png" style="height:52px;margin-bottom:16px;filter:brightness(0) invert(1);"/>
+      <div style="color:#ffd600;font-size:22px;font-weight:900;margin-bottom:6px;">Admin Dashboard</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:13px;">Flipkart Minutes · EV Assist</div>
+    </div>
+    <div style="padding:0 16px;">
+      <div class="login-card">
+        <div class="login-title">Welcome back 👋</div>
+        <div class="login-sub">Sign in to manage EV listings</div>
+        <div id="loginMsg" class="msg"></div>
+        <label class="inp-label">Email Address</label>
+        <input class="inp" id="adminEmail" type="email" placeholder="your@flipkart.com" style="margin-bottom:14px;"/>
+        <label class="inp-label">Password</label>
+        <div style="position:relative;margin-bottom:20px;">
+          <input class="inp" id="adminPass" type="password" placeholder="••••••••" style="margin-bottom:0;padding-right:44px;"/>
+          <button type="button" onclick="togglePwd('adminPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;">👁</button>
+        </div>
+        <button class="btn" id="loginBtn" onclick="doAdminLogin()">Sign In →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashSection" style="display:none;">
+  <div class="header">
+    <h1>⚡ EV Assist · Admin</h1>
+    <div class="header-right">
+      <span class="admin-badge">🔐 Admin</span>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-icon">⏳</div><div class="stat-num" id="statPending">0</div><div class="stat-lbl">Pending Changes</div></div>
+      <div class="stat-box"><div class="stat-icon">🏪</div><div class="stat-num" id="statVendors">0</div><div class="stat-lbl">Pending Vendors</div></div>
+      <div class="stat-box"><div class="stat-icon">📋</div><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total Requests</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('changes')">⏳ Change Requests</button>
+      <button class="tab" onclick="switchTab('vendors')">🏪 Vendor Approvals</button>
+      <button class="tab" onclick="switchTab('manage')">⚙️ Manage Vendors</button>
+      <button class="tab" onclick="switchTab('history')">📜 History</button>
+    </div>
+
+    <!-- Change Requests -->
+    <div id="changesTab">
+      <div id="changesArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
+    </div>
+
+    <!-- Vendor Approvals -->
+    <div id="vendorsTab" style="display:none;">
+      <div id="vendorsArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
+    </div>
+
+    <!-- History -->
+    <div id="historyTab" style="display:none;">
+      <!-- History Summary Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+          <div style="font-size:24px;font-weight:900;color:#002d62;" id="histTotal">0</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">📋 Total Requests</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+          <div style="font-size:24px;font-weight:900;color:#166534;" id="histApproved">0</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">✅ Approved</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8eaf0;box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+          <div style="font-size:24px;font-weight:900;color:#991b1b;" id="histRejected">0</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:4px;font-weight:500;">❌ Rejected</div>
+        </div>
+      </div>
+      <!-- Filter Bar -->
+      <div style="background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border:1px solid #e8eaf0;">
+        <span style="font-size:12px;font-weight:700;color:#6b7280;">Filter:</span>
+        <button onclick="filterHistory('all')" id="hf-all" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #002d62;background:#002d62;color:#ffd600;font-family:'Inter',sans-serif;">All</button>
+        <button onclick="filterHistory('approved')" id="hf-approved" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">✅ Approved</button>
+        <button onclick="filterHistory('rejected')" id="hf-rejected" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid #e8eaf0;background:#fff;color:#374151;font-family:'Inter',sans-serif;">❌ Rejected</button>
+        <input id="histSearch" placeholder="🔍 Search vendor..." oninput="filterHistory()" style="margin-left:auto;border:1.5px solid #e8eaf0;border-radius:8px;padding:6px 12px;font-size:12px;font-family:'Inter',sans-serif;background:#fafbfc;outline:none;width:180px;"/>
+      </div>
+      <div id="historyArea"><div style="text-align:center;color:#9ca3af;padding:40px;font-size:14px;">Loading...</div></div>
+    </div>
+
+    <!-- Manage Vendors -->
+    <div id="manageTab" style="display:none;">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <div class="card-title" style="margin-bottom:0;">Live Vendors</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+          <input id="vendorSearch" placeholder="🔍 Search vendor or city..." class="search-box" style="width:200px;" oninput="filterVendors()"/>
+            <button onclick="openAddVendor()" style="background:linear-gradient(135deg,#002d62,#003d8f);color:#ffd600;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;">+ Add EV</button>
+          </div>
+        </div>
+        <div id="manageArea"><div style="text-align:center;color:#9e9e9e;padding:20px;">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- ADD VENDOR MODAL -->
 <div class="add-vendor-modal" id="addVendorModal" onclick="closeAddVendor()">
   <div class="add-vendor-box" onclick="event.stopPropagation()">
