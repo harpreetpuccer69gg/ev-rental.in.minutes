@@ -257,9 +257,11 @@ async function loadPending() {
   const d = await res.json();
 
   const changes = d.changes || [];
-  const vendors = (d.vendors || []).filter(v => v.status === 'pending');
+  const allVendorRegs = (d.vendors || []);
+  const vendors = allVendorRegs.filter(v => v.status === 'pending');
   const pending = changes.filter(c => c.status === 'pending');
   const history = changes.filter(c => c.status !== 'pending');
+  const vendorHistory = allVendorRegs.filter(v => v.status !== 'pending');
 
   document.getElementById('statPending').innerText = pending.length;
   document.getElementById('statVendors').innerText = vendors.length;
@@ -294,11 +296,23 @@ async function loadPending() {
 
   // Render history
   const historyArea = document.getElementById('historyArea');
-  allHistory = history;
-  document.getElementById('histTotal').innerText = history.length;
-  document.getElementById('histApproved').innerText = history.filter(c=>c.status==='approved').length;
-  document.getElementById('histRejected').innerText = history.filter(c=>c.status==='rejected').length;
-  renderHistory(history);
+  allHistory = [
+    ...history,
+    ...vendorHistory.map(v => ({
+      id: v.id,
+      vendor_name: v.vendor_name,
+      type: 'vendor_reg',
+      status: v.status,
+      submitted_at: v.created_at,
+      reviewed_at: null,
+      review_note: '',
+      payload: {City: 'N/A', Make: 'Vendor Registration', 'SPOC': v.email, 'Phone': v.phone || 'N/A'}
+    }))
+  ].sort((a,b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+  document.getElementById('histTotal').innerText = allHistory.length;
+  document.getElementById('histApproved').innerText = allHistory.filter(c=>c.status==='approved').length;
+  document.getElementById('histRejected').innerText = allHistory.filter(c=>c.status==='rejected').length;
+  renderHistory(allHistory);
 }
 
 function renderChangeCard(c, showActions) {
@@ -510,8 +524,8 @@ function renderHistory(list) {
 function renderHistoryCard(c) {
   const p = c.payload || {};
   const isApproved = c.status === 'approved';
-  const typeLabel = c.type === 'new' ? 'New EV Added' : c.type === 'delete' ? 'EV Removed' : 'Specs Updated';
-  const typeIcon = c.type === 'new' ? '➕' : c.type === 'delete' ? '🗑️' : '✏️';
+  const typeLabel = c.type === 'new' ? 'New EV Added' : c.type === 'delete' ? 'EV Removed' : c.type === 'vendor_reg' ? 'Vendor Registration' : 'Specs Updated';
+  const typeIcon = c.type === 'new' ? '➕' : c.type === 'delete' ? '🗑️' : c.type === 'vendor_reg' ? '🏢' : '✏️';
   const statusColor = isApproved ? '#166534' : '#991b1b';
   const statusBg = isApproved ? '#f0fdf4' : '#fef2f2';
   const statusBorder = isApproved ? '#bbf7d0' : '#fecaca';
