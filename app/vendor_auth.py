@@ -197,8 +197,9 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
             )]
         save_vendors(vendors)
         git_push_vendors(f'Auto: {chg["type"]} approved for {chg["vendor_name"]}')
+        send_email([chg['vendor_email']],
             'Your change request has been APPROVED',
-            f'Hi {chg["vendor_name"]},\n\nYour change request has been approved and is now live.\n\nDetails: {json.dumps(chg["payload"], indent=2)}\n\n- Flipkart Minutes EV Assist'
+            f'Hi {chg["vendor_name"]},\n\nYour change request has been approved and is now live.\n\n- Flipkart Minutes EV Assist'
         )
     else:
         send_email([chg['vendor_email']],
