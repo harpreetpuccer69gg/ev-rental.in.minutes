@@ -25,6 +25,28 @@ def save_vendors(data):
     with open(VENDORS_PATH, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+def git_push_vendors(message='Auto: vendor change approved'):
+    import subprocess
+    repo = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    token = os.getenv('GITHUB_TOKEN', '')
+    repo_url = os.getenv('GITHUB_REPO', '')
+    try:
+        if token and repo_url:
+            remote = f'https://{token}@{repo_url.replace("https://","")}'
+            subprocess.run(['git', 'remote', 'set-url', 'origin', remote], cwd=repo, check=True)
+        subprocess.run(['git', 'config', 'user.email', 'bot@ev-assist.com'], cwd=repo)
+        subprocess.run(['git', 'config', 'user.name', 'EV Assist Bot'], cwd=repo)
+        subprocess.run(['git', 'add', 'data/vendors.json'], cwd=repo, check=True)
+        result = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=repo)
+        if result.returncode != 0:  # there are changes
+            subprocess.run(['git', 'commit', '-m', message], cwd=repo, check=True)
+            subprocess.run(['git', 'push', 'origin', 'main'], cwd=repo, check=True)
+            print('[GIT] vendors.json pushed to GitHub')
+        else:
+            print('[GIT] No changes to push')
+    except Exception as e:
+        print(f'[GIT ERROR] {e}')
+
 
 def hash_password(pwd: str) -> str:
     return bcrypt.hashpw(pwd.encode(), bcrypt.gensalt()).decode()
@@ -174,7 +196,7 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
                 v.get('Make','').lower() == p.get('Make','').lower()
             )]
         save_vendors(vendors)
-        send_email([chg['vendor_email']],
+        git_push_vendors(f'Auto: {chg["type"]} approved for {chg["vendor_name"]}')
             'Your change request has been APPROVED',
             f'Hi {chg["vendor_name"]},\n\nYour change request has been approved and is now live.\n\nDetails: {json.dumps(chg["payload"], indent=2)}\n\n- Flipkart Minutes EV Assist'
         )
