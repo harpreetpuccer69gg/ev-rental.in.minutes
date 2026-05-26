@@ -120,7 +120,7 @@ label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:blo
       <input class="inp" id="loginEmail" type="email" placeholder="your@email.com"/>
       <label>Password</label>
       <input class="inp" id="loginPass" type="password" placeholder="••••••••"/>
-      <button class="btn" onclick="doLogin()">Login →</button>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Login →</button>
     </div>
 
     <!-- REGISTER -->
@@ -280,17 +280,24 @@ async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPass').value;
   if (!email || !pass) return showMsg('loginMsg', 'Please fill all fields', 'error');
-  const res = await fetch('/vendor/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass})});
-  const d = await res.json();
-  if (d.ok) {
-    token = d.token;
-    vendorName = d.vendor_name;
-    localStorage.setItem('vendor_token', token);
-    localStorage.setItem('vendor_name', vendorName);
-    showDashboard();
-  } else {
-    showMsg('loginMsg', d.msg, 'error');
+  const btn = document.getElementById('loginBtn');
+  btn.innerText = 'Logging in...'; btn.disabled = true;
+  try {
+    const res = await fetch('/vendor/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password: pass})});
+    const d = await res.json();
+    if (d.ok) {
+      token = d.token;
+      vendorName = d.vendor_name;
+      localStorage.setItem('vendor_token', token);
+      localStorage.setItem('vendor_name', vendorName);
+      showDashboard();
+    } else {
+      showMsg('loginMsg', d.msg, 'error');
+    }
+  } catch(e) {
+    showMsg('loginMsg', 'Server error. Please try again.', 'error');
   }
+  btn.innerText = 'Login →'; btn.disabled = false;
 }
 
 async function doRegister() {

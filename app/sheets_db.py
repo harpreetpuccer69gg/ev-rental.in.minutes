@@ -7,11 +7,28 @@ Each row stores one JSON-encoded record in column A.
 """
 import json, os
 from app.sheets import get_sheet
+import gspread
+from google.oauth2.service_account import Credentials
+
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+
+def _get_spreadsheet():
+    """Get the full spreadsheet object (not just one worksheet)."""
+    creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
+    sheet_id = os.getenv("GOOGLE_SHEET_ID", "")
+    if creds_json:
+        import json as _json
+        info = _json.loads(creds_json)
+        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
+    else:
+        creds_file = os.getenv("GOOGLE_CREDS_FILE", "credentials.json")
+        creds = Credentials.from_service_account_file(creds_file, scopes=SCOPES)
+    client = gspread.authorize(creds)
+    return client.open_by_key(sheet_id)
 
 def _get_tab(title: str):
     """Get or create a worksheet tab by title."""
-    sheet = get_sheet()
-    spreadsheet = sheet.spreadsheet
+    spreadsheet = _get_spreadsheet()
     try:
         return spreadsheet.worksheet(title)
     except Exception:
