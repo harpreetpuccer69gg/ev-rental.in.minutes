@@ -216,13 +216,13 @@ label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:blo
         <div class="form-section-title">👤 Contact (SPOC)</div>
         <div class="form-row">
           <div><label>SPOC Name</label><input class="inp" id="fSpoc" placeholder="Contact person"/></div>
-          <div><label>SPOC Phone</label><input class="inp" id="fSpocPhone" placeholder="Contact number"/></div>
+          <div><label>SPOC Phone</label><input class="inp" id="fSpocPhone" placeholder="10-digit number" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"/></div>
         </div>
       </div>
 
       <div class="form-section">
         <div class="form-section-title">🖼️ Media</div>
-        <label>EV Images <span style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0;">(3 required · JPG/PNG/WEBP · max 2MB · 800×600px)</span></label>
+        <label>EV Images <span style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0;">(1 required · 2 optional · JPG/PNG/WEBP · max 2MB)</span></label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
           <div onclick="document.getElementById('fImage1').click()" style="border:2px dashed #c7d2fe;border-radius:12px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#f5f7ff;transition:all 0.2s;">
             <span id="img1Icon" style="font-size:20px;">📷</span>
@@ -243,7 +243,7 @@ label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:blo
             <input type="file" id="fImage3" accept="image/*" style="display:none;" onchange="previewImg(this,3)"/>
           </div>
         </div>
-        <div id="imgError" style="display:none;color:#dc2626;font-size:12px;margin-bottom:8px;background:#fef2f2;padding:8px 12px;border-radius:8px;border:1px solid #fecaca;">⚠️ Please upload all 3 images.</div>
+        <div id="imgError" style="display:none;color:#dc2626;font-size:12px;margin-bottom:8px;background:#fef2f2;padding:8px 12px;border-radius:8px;border:1px solid #fecaca;">⚠️ Please upload at least 1 image.</div>
         <label style="margin-top:4px;">EV Video <span style="font-size:10px;color:#9ca3af;font-weight:500;text-transform:none;letter-spacing:0;">(optional · MP4 · max 30MB · 1280×720px)</span></label>
         <div onclick="document.getElementById('fVideo').click()" style="border:2px dashed #c7d2fe;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;background:#f5f7ff;margin-bottom:12px;transition:all 0.2s;">
           <span style="font-size:22px;">🎥</span>
@@ -464,9 +464,13 @@ async function submitChange() {
   const existImg2 = document.getElementById('fImageUrl2').value;
   const existImg3 = document.getElementById('fImageUrl3').value;
   if ((!img1.files || !img1.files[0]) && !existImg1) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
-  if ((!img2.files || !img2.files[0]) && !existImg2) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
-  if ((!img3.files || !img3.files[0]) && !existImg3) { document.getElementById('imgError').style.display='block'; btn.innerText='Submit for Approval →'; btn.disabled=false; return; }
   document.getElementById('imgError').style.display='none';
+
+  const phone = document.getElementById('fSpocPhone').value.trim();
+  if (phone && phone.length !== 10) {
+    showMsg('modalMsg', 'SPOC phone must be exactly 10 digits', 'error');
+    btn.innerText='Submit for Approval →'; btn.disabled=false; return;
+  }
 
   async function uploadFile(fileInput, existingUrl) {
     if (fileInput.files && fileInput.files[0]) {
