@@ -171,6 +171,42 @@ label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:blo
   </div>
 </div>
 
+<!-- TYPE SELECTOR MODAL -->
+<div class="modal-overlay" id="typeModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">➕ Add EV Listing</div>
+      <button class="modal-close" onclick="document.getElementById('typeModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:#6b7280;margin-bottom:16px;">Is your EV already listed on the marketplace, or are you adding a new one?</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+        <div onclick="selectListingType('new')" id="typeNew" style="border:2px solid #e8ecf4;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafbff;">
+          <div style="font-size:28px;margin-bottom:8px;">🆕</div>
+          <div style="font-size:13px;font-weight:800;color:#002d62;">New Vendor</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Not listed yet</div>
+        </div>
+        <div onclick="selectListingType('existing')" id="typeExisting" style="border:2px solid #e8ecf4;border-radius:14px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fafbff;">
+          <div style="font-size:28px;margin-bottom:8px;">✏️</div>
+          <div style="font-size:13px;font-weight:800;color:#002d62;">Already Listed</div>
+          <div style="font-size:11px;color:#9ca3af;margin-top:4px;">Edit existing EV</div>
+        </div>
+      </div>
+      <!-- Already Listed dropdown (hidden by default) -->
+      <div id="existingPickerWrap" style="display:none;">
+        <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block;">Select your EV from marketplace</label>
+        <select class="inp" id="existingPicker" style="margin-bottom:16px;">
+          <option value="">-- Loading EVs... --</option>
+        </select>
+        <button class="btn" id="loadExistingBtn" onclick="loadExistingEV()" style="margin-top:0;">Load & Edit →</button>
+      </div>
+      <div id="typeNewBtn" style="display:none;">
+        <button class="btn" onclick="proceedNewEV()" style="margin-top:0;">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT/ADD MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
@@ -363,6 +399,49 @@ function safeStyle(id, prop, val) {
 }
 
 function openAddModal() {
+  // Show type selector first
+  document.getElementById('typeNew').style.border = '2px solid #e8ecf4';
+  document.getElementById('typeExisting').style.border = '2px solid #e8ecf4';
+  document.getElementById('existingPickerWrap').style.display = 'none';
+  document.getElementById('typeNewBtn').style.display = 'none';
+  document.getElementById('typeModal').classList.add('show');
+  // Pre-load all vendors for the dropdown
+  fetch('/vendors').then(r=>r.json()).then(vendors=>{
+    const picker = document.getElementById('existingPicker');
+    // Filter by vendor name matching logged-in vendor
+    const mine = vendors.filter(v=>(v.Vendor||'').toLowerCase()===vendorName.toLowerCase());
+    const all = mine.length ? mine : vendors;
+    picker.innerHTML = '<option value="">-- Select EV --</option>' +
+      all.map((v,i)=>`<option value="${i}">${v.Vendor} | ${v.Make||''} | ${v.City}</option>`).join('');
+    picker._vendors = all;
+  });
+}
+
+function selectListingType(type) {
+  document.getElementById('typeNew').style.border = type==='new' ? '2px solid #002d62' : '2px solid #e8ecf4';
+  document.getElementById('typeNew').style.background = type==='new' ? '#eff6ff' : '#fafbff';
+  document.getElementById('typeExisting').style.border = type==='existing' ? '2px solid #002d62' : '2px solid #e8ecf4';
+  document.getElementById('typeExisting').style.background = type==='existing' ? '#eff6ff' : '#fafbff';
+  document.getElementById('existingPickerWrap').style.display = type==='existing' ? 'block' : 'none';
+  document.getElementById('typeNewBtn').style.display = type==='new' ? 'block' : 'none';
+}
+
+function proceedNewEV() {
+  document.getElementById('typeModal').classList.remove('show');
+  _openBlankAddModal();
+}
+
+function loadExistingEV() {
+  const picker = document.getElementById('existingPicker');
+  const idx = picker.value;
+  if (!idx && idx !== 0) return alert('Please select an EV first');
+  const v = picker._vendors[parseInt(idx)];
+  if (!v) return;
+  document.getElementById('typeModal').classList.remove('show');
+  openEditModal(JSON.stringify(v));
+}
+
+function _openBlankAddModal() {
   safeSet('modalTitle','innerText','Add New EV Listing');
   safeSet('fEditMode','value','new');
   safeSet('fCity','value','');
