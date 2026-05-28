@@ -231,8 +231,8 @@ function renderChangeCard(c, showActions) {
     ${showActions ? `
     <div class="action-row">
       <input class="note-inp" id="note_${c.id}" placeholder="Rejection reason (optional)"/>
-      <button class="approve-btn" onclick="reviewChange('${c.id}','approved','${(c.vendor_name||'').replace(/'/g,\'')}')">✅ Approve</button>
-      <button class="reject-btn" onclick="reviewChange('${c.id}','rejected','${(c.vendor_name||'').replace(/'/g,\'')}')">❌ Reject</button>
+      <button class="approve-btn" onclick="reviewChange('${c.id}','approved','${(c.vendor_name||'').replace(/'/g,"&#39;")}')">✅ Approve</button>
+      <button class="reject-btn" onclick="reviewChange('${c.id}','rejected','${(c.vendor_name||'').replace(/'/g,"&#39;")}')">❌ Reject</button>
     </div>` : ''}
   </div>`;
 }
