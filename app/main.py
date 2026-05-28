@@ -146,6 +146,8 @@ async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
     from app.vendor_auth import decode_token
     user = decode_token(token)
     if not user:
+        return JSONResponse({'ok': False, 'msg': 'Session expired. Please login again.'}, status_code=401)
+    if user.get('role') != 'vendor':
         return JSONResponse({'ok': False, 'msg': 'Unauthorized'}, status_code=401)
     allowed = ['image/jpeg','image/png','image/webp','video/mp4']
     if file.content_type not in allowed:

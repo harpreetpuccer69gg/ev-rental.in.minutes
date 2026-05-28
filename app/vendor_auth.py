@@ -71,7 +71,7 @@ def verify_password(pwd: str, hashed: str) -> bool:
     return bcrypt.checkpw(pwd.encode(), hashed.encode())
 
 def create_token(email: str, role: str) -> str:
-    payload = {'email': email, 'role': role, 'exp': datetime.utcnow() + timedelta(hours=24)}
+    payload = {'email': email, 'role': role, 'exp': datetime.utcnow() + timedelta(days=7)}
     return jwt.encode(payload, SECRET, algorithm='HS256')
 
 def decode_token(token: str):
