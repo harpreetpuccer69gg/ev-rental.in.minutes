@@ -283,13 +283,6 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     </select>
     <select class="intro-sel" id="introCity">
       <option value="">-- Select your city --</option>
-      <option>Ahmedabad</option><option>Bangalore</option><option>Bhopal</option>
-      <option>Chennai</option><option>Coimbatore</option><option>Delhi NCR</option>
-      <option>Guwahati</option><option>Hyderabad</option><option>Indore</option>
-      <option>Jaipur</option><option>Kochi</option><option>Kolkata</option>
-      <option>Lucknow</option><option>Madurai</option><option>Mumbai</option>
-      <option>Patna</option><option>Pune</option><option>Prayagraj</option><option>Surat</option><option>Vadodara</option><option>Zirakpur</option>
-      <option value="Other">Other</option>
     </select>
     <button class="intro-btn" id="introBtn" onclick="closeIntro()">Let&#39;s Go &rarr;</button>
   </div>
@@ -369,13 +362,6 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     <div class="card-title" id="cityLabel">1. Select City</div>
     <select class="city-sel" id="citySelect" onchange="checkReady()">
       <option value="">-- Select city --</option>
-      <option>Ahmedabad</option><option>Bangalore</option><option>Bhopal</option>
-      <option>Chennai</option><option>Coimbatore</option><option>Delhi NCR</option>
-      <option>Guwahati</option><option>Hyderabad</option><option>Indore</option>
-      <option>Jaipur</option><option>Kochi</option><option>Kolkata</option>
-      <option>Lucknow</option><option>Madurai</option><option>Mumbai</option>
-      <option>Patna</option><option>Pune</option><option>Prayagraj</option><option>Surat</option><option>Vadodara</option><option>Zirakpur</option>
-      <option value="Other">Other</option>
     </select>
     <p class="hint" id="cityHint">Choose your delivery city to see available EV rentals.</p>
   </div>
@@ -478,7 +464,22 @@ let lang='en', budget=null, vendors=[], selVendor=null;
 const BR={'1':[0,1000],'2':[1000,1500],'3':[1500,2000],'4':[2000,99999]};
 const IMGS={'hi-speed':'/static/images/ev_hi_speed.svg','low-speed':'/static/images/ev_low_speed.svg','e-cycle':'/static/images/ev_e_cycle.svg'};
 
-fetch('/vendors').then(r=>r.json()).then(d=>{vendors=Array.isArray(d)?d:[];updateCarousel();}).catch(()=>{vendors=[];});
+fetch('/vendors').then(r=>r.json()).then(d=>{
+  vendors=Array.isArray(d)?d:[];
+  // Build city list dynamically from live vendor data
+  const citySet=new Set(vendors.map(v=>(v.City||'').trim()).filter(c=>c));
+  const cities=[...citySet].sort((a,b)=>a.localeCompare(b));
+  ['citySelect','introCity'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    const first=sel.options[0]; // keep the placeholder
+    sel.innerHTML='';
+    sel.appendChild(first);
+    cities.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.text=c; sel.appendChild(o); });
+    const other=document.createElement('option'); other.value='Other'; other.text='Other'; sel.appendChild(other);
+  });
+  updateCarousel();
+}).catch(()=>{vendors=[];});
 
 const TOTAL_SLIDES=4;
 let curSlide=0;
