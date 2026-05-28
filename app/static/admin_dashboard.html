@@ -119,13 +119,6 @@ body{font-family:'Inter',sans-serif;background:#f0f2f5;color:#1a1a2e;}
 let adminToken = localStorage.getItem('admin_token') || '';
 document.addEventListener('DOMContentLoaded', () => { if (adminToken) showDashboard(); });
 
-function togglePwd() {
-  const inp = document.getElementById('adminPass');
-  const btn = inp.nextElementSibling;
-  if (inp.type === 'password') { inp.type = 'text'; btn.innerText = '🙈'; }
-  else { inp.type = 'password'; btn.innerText = '👁'; }
-}
-
 async function doAdminLogin() {
   const email = document.getElementById('adminEmail').value.trim();
   const pass = document.getElementById('adminPass').value;
