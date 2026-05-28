@@ -398,6 +398,9 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
   <div class="detail-img-wrap">
     <img id="detailImg" src="" alt="EV"/>
   </div>
+  <div id="detailVideoWrap" style="display:none;width:100%;background:#000;">
+    <video id="detailVideo" controls playsinline style="width:100%;max-height:260px;display:block;"></video>
+  </div>
   <div class="detail-body">
     <span class="detail-badge ev-badge" id="detailBadge"></span>
     <div class="detail-name" id="detailName"></div>
@@ -816,6 +819,16 @@ function openDetail(v){
   document.getElementById('detailDeposit').innerText=v['Security Deposit']||'NIL';
   document.getElementById('detailRefund').innerText=v['Refundable Deposit']||'NIL';
   document.getElementById('detailDisclaimer').classList.remove('show');
+  // video
+  const videoWrap = document.getElementById('detailVideoWrap');
+  const videoEl = document.getElementById('detailVideo');
+  if (v.Video) {
+    videoEl.src = v.Video;
+    videoWrap.style.display = 'block';
+  } else {
+    videoEl.src = '';
+    videoWrap.style.display = 'none';
+  }
   const page=document.getElementById('detailPage');
   page.style.display='block';
   page.style.transform='translateX(100%)';
@@ -833,6 +846,8 @@ function openDetail(v){
 function closeDetail(){
   const page=document.getElementById('detailPage');
   page.style.transform='translateX(100%)';
+  const videoEl=document.getElementById('detailVideo');
+  if(videoEl){videoEl.pause();videoEl.src='';}
   setTimeout(()=>{page.style.display='none';},300);
 }
 
