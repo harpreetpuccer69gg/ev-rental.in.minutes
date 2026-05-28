@@ -195,8 +195,15 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
 .back-btn{background:none;border:none;color:#ffd600;font-size:22px;cursor:pointer;padding:4px 8px;font-weight:900;line-height:1;}
 .share-btn{background:none;border:none;color:#ffd600;font-size:22px;cursor:pointer;padding:4px 8px;line-height:1;margin-left:auto;}
 .detail-header-title{color:#fff;font-size:15px;font-weight:800;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.detail-img-wrap{width:100%;height:260px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #e0e0e0;}
-.detail-img-wrap img{width:100%;height:100%;object-fit:contain;padding:16px;box-sizing:border-box;margin:0;}
+/* DETAIL MEDIA CAROUSEL */
+.dmedia-wrap{position:relative;width:100%;height:260px;background:#fff;overflow:hidden;border-bottom:1px solid #e0e0e0;}
+.dmedia-track{display:flex;height:100%;transition:transform 0.35s ease;will-change:transform;}
+.dmedia-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;}
+.dmedia-slide img{width:100%;height:100%;object-fit:contain;padding:16px;box-sizing:border-box;}
+.dmedia-slide video{width:100%;height:100%;object-fit:contain;background:#000;display:block;}
+.dmedia-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:5;}
+.dmedia-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,0.25);border:none;cursor:pointer;transition:all 0.25s;padding:0;}
+.dmedia-dot.active{background:#002d62;width:20px;border-radius:4px;}
 .detail-body{max-width:500px;margin:0 auto;padding:16px;}
 .detail-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:4px 12px;border-radius:999px;margin-bottom:10px;text-transform:uppercase;}
 .detail-name{font-size:22px;font-weight:900;color:#002d62;margin-bottom:6px;line-height:1.2;}
@@ -395,11 +402,9 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#212121;}
     <div class="detail-header-title" id="detailHeaderTitle">EV Details</div>
     <button onclick="shareEV()" title="Share" style="background:#1a6ed8;border:none;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:auto;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-11.1-6.8l6.2 3.6m-.1-9.6l-6.1 3.6" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></button>
   </div>
-  <div class="detail-img-wrap">
-    <img id="detailImg" src="" alt="EV"/>
-  </div>
-  <div id="detailVideoWrap" style="display:none;width:100%;background:#000;">
-    <video id="detailVideo" controls playsinline style="width:100%;max-height:260px;display:block;"></video>
+  <div class="dmedia-wrap" id="dmediaWrap">
+    <div class="dmedia-track" id="dmediaTrack"></div>
+    <div class="dmedia-dots" id="dmediaDots"></div>
   </div>
   <div class="detail-body">
     <span class="detail-badge ev-badge" id="detailBadge"></span>
@@ -804,8 +809,44 @@ function openDetail(v){
   const tk=(v.Type||'').toLowerCase().includes('hi')?'hi-speed':(v.Type||'').toLowerCase().includes('low')?'low-speed':'e-cycle';
   const bc=tk==='hi-speed'?'badge-hi':tk==='low-speed'?'badge-lo':'badge-ec';
   const bl=tk==='hi-speed'?'Hi-Speed':tk==='low-speed'?'Low Speed':'E-Cycle';
-  const img=v.Image&&!v.Image.includes('ev_hi')&&!v.Image.includes('ev_lo')&&!v.Image.includes('ev_e')?v.Image:IMGS[tk];
-  document.getElementById('detailImg').src=img;
+  const fallback=IMGS[tk];
+  // Build media slides: Image, Image2, Image3, Video
+  const slides=[];
+  const img1=v.Image&&!v.Image.includes('ev_hi')&&!v.Image.includes('ev_lo')&&!v.Image.includes('ev_e')?v.Image:fallback;
+  slides.push({type:'img',src:img1});
+  if(v.Image2)slides.push({type:'img',src:v.Image2});
+  if(v.Image3)slides.push({type:'img',src:v.Image3});
+  if(v.Video)slides.push({type:'video',src:v.Video});
+  // Render track
+  const track=document.getElementById('dmediaTrack');
+  const dots=document.getElementById('dmediaDots');
+  let dmCur=0;
+  track.innerHTML=slides.map(s=>s.type==='img'
+    ?'<div class="dmedia-slide"><img src="'+s.src+'" onerror="this.src=\''+fallback+'\'"/></div>'
+    :'<div class="dmedia-slide"><video src="'+s.src+'" controls playsinline preload="metadata"></video></div>'
+  ).join('');
+  dots.innerHTML=slides.length>1?slides.map((_,i)=>'<button class="dmedia-dot'+(i===0?' active':'')+'"></button>').join(''):'';
+  track.style.transform='translateX(0)';
+  // dot click
+  dots.querySelectorAll('.dmedia-dot').forEach((d,i)=>d.addEventListener('click',()=>goDmSlide(i)));
+  function goDmSlide(n){
+    // pause any playing video before switching
+    track.querySelectorAll('video').forEach(vid=>vid.pause());
+    dmCur=n;
+    track.style.transform='translateX(-'+n*100+'%)';
+    dots.querySelectorAll('.dmedia-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+  }
+  // swipe support
+  let dsx=0;
+  const wrap=document.getElementById('dmediaWrap');
+  wrap.ontouchstart=e=>{dsx=e.changedTouches[0].screenX;};
+  wrap.ontouchend=e=>{
+    const diff=dsx-e.changedTouches[0].screenX;
+    if(Math.abs(diff)>40){
+      const next=(dmCur+(diff>0?1:-1)+slides.length)%slides.length;
+      goDmSlide(next);
+    }
+  };
   document.getElementById('detailHeaderTitle').innerText=(v.Vendor||'EV');
   document.getElementById('detailName').innerText=(v.Vendor||'EV');
   document.getElementById('detailMakeSub').innerText=(v.Make||'');
@@ -819,16 +860,6 @@ function openDetail(v){
   document.getElementById('detailDeposit').innerText=v['Security Deposit']||'NIL';
   document.getElementById('detailRefund').innerText=v['Refundable Deposit']||'NIL';
   document.getElementById('detailDisclaimer').classList.remove('show');
-  // video
-  const videoWrap = document.getElementById('detailVideoWrap');
-  const videoEl = document.getElementById('detailVideo');
-  if (v.Video) {
-    videoEl.src = v.Video;
-    videoWrap.style.display = 'block';
-  } else {
-    videoEl.src = '';
-    videoWrap.style.display = 'none';
-  }
   const page=document.getElementById('detailPage');
   page.style.display='block';
   page.style.transform='translateX(100%)';
@@ -836,18 +867,15 @@ function openDetail(v){
   setTimeout(()=>page.style.transform='translateX(0)',10);
   window.scrollTo(0,0);
   history.pushState({detail:true},'','');
-  window.onpopstate=function(e){
-    if(document.getElementById('detailPage').style.display!=='none'){
-      closeDetail();
-    }
+  window.onpopstate=function(){
+    if(document.getElementById('detailPage').style.display!=='none') closeDetail();
   };
 }
 
 function closeDetail(){
   const page=document.getElementById('detailPage');
   page.style.transform='translateX(100%)';
-  const videoEl=document.getElementById('detailVideo');
-  if(videoEl){videoEl.pause();videoEl.src='';}
+  document.getElementById('dmediaTrack').querySelectorAll('video').forEach(v=>{v.pause();v.src='';});
   setTimeout(()=>{page.style.display='none';},300);
 }
 
