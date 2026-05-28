@@ -77,6 +77,21 @@ def save_pending(data: list):
         print(f"[sheets_db] save_pending error: {e}")
         _save_local_pending(data)
 
+# ── Vendors DB ───────────────────────────────────────────────────────────────
+
+def load_vendors_db() -> list:
+    try:
+        return _read_all("Vendors DB")
+    except Exception as e:
+        print(f"[sheets_db] load_vendors_db error: {e}")
+        return []
+
+def save_vendors_db(data: list):
+    try:
+        _write_all("Vendors DB", data)
+    except Exception as e:
+        print(f"[sheets_db] save_vendors_db error: {e}")
+
 # ── Local JSON fallbacks ──────────────────────────────────────────────────────
 
 AUTH_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'vendors_auth.json'))

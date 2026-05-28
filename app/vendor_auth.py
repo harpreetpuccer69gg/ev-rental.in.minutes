@@ -18,12 +18,23 @@ SMTP_PASS = os.getenv('SMTP_PASS', '')
 
 
 def load_vendors():
+    from app.sheets_db import load_vendors_db
+    data = load_vendors_db()
+    if data:
+        return data
+    # fallback to local file
     with open(VENDORS_PATH, encoding='utf-8') as f:
         return json.load(f)
 
 def save_vendors(data):
-    with open(VENDORS_PATH, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    # save to both Sheets (persistent) and local file (fast reads)
+    from app.sheets_db import save_vendors_db
+    save_vendors_db(data)
+    try:
+        with open(VENDORS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f'[save_vendors] local file write error: {e}')
 
 def git_push_vendors(message='Auto: vendor change approved'):
     import subprocess

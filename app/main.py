@@ -32,14 +32,28 @@ async def startup_event():
         print("Google Sheet connection established at startup")
     except Exception as e:
         print(f"Startup sheet connection failed: {e}")
+    # Seed Vendors DB sheet if empty
+    try:
+        from app.sheets_db import load_vendors_db, save_vendors_db
+        existing = load_vendors_db()
+        if not existing:
+            with open(VENDORS_PATH, encoding='utf-8') as f:
+                import json as _json
+                data = _json.load(f)
+            save_vendors_db(data)
+            print(f"Vendors DB seeded with {len(data)} entries from vendors.json")
+        else:
+            print(f"Vendors DB already has {len(existing)} entries")
+    except Exception as e:
+        print(f"Vendors DB seed error: {e}")
 
 
 @app.get("/vendors")
 @app.head("/vendors")
 def get_vendors():
     try:
-        with open(VENDORS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
+        from app.vendor_auth import load_vendors
+        return load_vendors()
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
