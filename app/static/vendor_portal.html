@@ -604,6 +604,23 @@ async function submitChange() {
     Status: 'Live'
   };
 
+  // For edit mode, store original Vendor+City+Make so backend can find exact entry
+  if (mode === 'edit') {
+    const orig = document.getElementById('fOriginalData').value;
+    if (orig) {
+      try {
+        const origData = JSON.parse(orig);
+        payload._original = {
+          Vendor: origData.Vendor || vendorName,
+          City: origData.City || payload.City,
+          Make: origData.Make || payload.Make
+        };
+        // Keep original Vendor name from marketplace
+        payload.Vendor = origData.Vendor || vendorName;
+      } catch(e) {}
+    }
+  }
+
   const res = await fetch('/vendor/propose', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token, type: mode, payload})});
   const d = await res.json();
   btn.innerText = 'Submit for Approval →'; btn.disabled = false;

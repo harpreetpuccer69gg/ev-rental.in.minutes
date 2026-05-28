@@ -212,9 +212,14 @@ def review_change(token: str, change_id: str, action: str, note: str = ''):
         if chg['type'] == 'new':
             vendors.append(p)
         elif chg['type'] == 'edit':
+            p = chg['payload']
+            orig = p.get('_original', p)  # use _original for matching if available
             for i, v in enumerate(vendors):
-                if v.get('Vendor','').lower() == p.get('Vendor','').lower() and v.get('City','').lower() == p.get('City','').lower() and v.get('Make','').lower() == p.get('Make','').lower():
-                    vendors[i] = p
+                if (v.get('Vendor','').lower() == orig.get('Vendor','').lower() and
+                    v.get('City','').lower() == orig.get('City','').lower() and
+                    v.get('Make','').lower() == orig.get('Make','').lower()):
+                    clean = {k: val for k, val in p.items() if k != '_original'}
+                    vendors[i] = clean
                     break
         elif chg['type'] == 'delete':
             vendors = [v for v in vendors if not (
