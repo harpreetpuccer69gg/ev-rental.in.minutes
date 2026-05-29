@@ -152,12 +152,43 @@ async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
     allowed = ['image/jpeg','image/png','image/webp','video/mp4']
     if file.content_type not in allowed:
         return JSONResponse({'ok': False, 'msg': 'Invalid file type'})
-    ext = os.path.splitext(file.filename)[1]
-    fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
-    fpath = os.path.join(STATIC_DIR, 'images', fname)
-    with open(fpath, 'wb') as f:
-        shutil.copyfileobj(file.file, f)
-    return JSONResponse({'ok': True, 'image_url': f'/static/images/{fname}'})
+    try:
+        # Upload to Google Drive for permanent storage
+        from app.sheets_db import _get_spreadsheet
+        import io
+        content = await file.read()
+        creds_json = os.getenv('GOOGLE_CREDS_JSON', '')
+        creds_file = os.getenv('GOOGLE_CREDS_FILE', 'credentials.json')
+        from google.oauth2.service_account import Credentials
+        from googleapiclient.discovery import build
+        from googleapiclient.http import MediaIoBaseUpload
+        scopes = ['https://www.googleapis.com/auth/drive.file']
+        if creds_json:
+            import json as _j
+            creds = Credentials.from_service_account_info(_j.loads(creds_json), scopes=scopes)
+        else:
+            creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
+        drive = build('drive', 'v3', credentials=creds)
+        fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
+        media = MediaIoBaseUpload(io.BytesIO(content), mimetype=file.content_type)
+        f_meta = {'name': fname}
+        uploaded = drive.files().create(body=f_meta, media_body=media, fields='id').execute()
+        fid = uploaded.get('id')
+        # Make file publicly readable
+        drive.permissions().create(fileId=fid, body={'type':'anyone','role':'reader'}).execute()
+        if file.content_type == 'video/mp4':
+            url = f'https://drive.google.com/file/d/{fid}/preview'
+        else:
+            url = f'https://drive.google.com/thumbnail?id={fid}&sz=w800'
+        return JSONResponse({'ok': True, 'image_url': url})
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        # Fallback to local disk
+        fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
+        fpath = os.path.join(STATIC_DIR, 'images', fname)
+        with open(fpath, 'wb') as lf:
+            lf.write(content)
+        return JSONResponse({'ok': True, 'image_url': f'/static/images/{fname}'})
 
 @app.post("/admin/review")
 async def admin_review(request: Request):
