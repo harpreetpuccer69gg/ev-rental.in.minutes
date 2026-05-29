@@ -177,7 +177,7 @@ async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
         # Make file publicly readable
         drive.permissions().create(fileId=fid, body={'type':'anyone','role':'reader'}).execute()
         if file.content_type == 'video/mp4':
-            url = f'https://drive.google.com/file/d/{fid}/preview'
+            url = f'https://drive.google.com/uc?export=download&id={fid}'
         else:
             url = f'https://drive.google.com/thumbnail?id={fid}&sz=w800'
         return JSONResponse({'ok': True, 'image_url': url})
