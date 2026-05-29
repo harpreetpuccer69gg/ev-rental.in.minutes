@@ -286,7 +286,7 @@ label{font-size:11px;font-weight:700;color:#6b7280;margin-bottom:5px;display:blo
           <div><div id="videoName" style="font-size:12px;color:#6b7280;font-weight:600;">Click to upload video</div><div style="font-size:10px;color:#9ca3af;margin-top:2px;">MP4 format only</div></div>
           <input type="file" id="fVideo" accept="video/mp4" style="display:none;" onchange="previewVideo(this)"/>
         </div>
-        <video id="videoPreview" style="display:none;width:100%;border-radius:12px;margin-bottom:12px;" controls></video>
+        <video id="videoPreview" style="display:none;width:100%;height:auto;max-height:500px;border-radius:12px;margin-bottom:12px;object-fit:contain;background:#000;" controls></video>
       </div>
 
       <input type="hidden" id="fImageUrl"/>

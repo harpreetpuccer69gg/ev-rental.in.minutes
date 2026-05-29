@@ -1,0 +1,2 @@
+Final balance: 1
+Last opened func: L115: function setLang(l){
