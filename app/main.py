@@ -152,43 +152,55 @@ async def upload_image(token: str = Form(...), file: UploadFile = File(...)):
     allowed = ['image/jpeg','image/png','image/webp','video/mp4']
     if file.content_type not in allowed:
         return JSONResponse({'ok': False, 'msg': 'Invalid file type'})
+    content = await file.read()
+    # Try Cloudinary first (permanent CDN storage)
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME','')
+    cloud_key  = os.getenv('CLOUDINARY_API_KEY','')
+    cloud_sec  = os.getenv('CLOUDINARY_API_SECRET','')
+    if cloud_name and cloud_key and cloud_sec:
+        try:
+            import cloudinary, cloudinary.uploader, io
+            cloudinary.config(cloud_name=cloud_name, api_key=cloud_key, api_secret=cloud_sec)
+            resource = 'video' if file.content_type == 'video/mp4' else 'image'
+            folder   = 'ev_assist_vendors'
+            result   = cloudinary.uploader.upload(
+                io.BytesIO(content),
+                resource_type=resource,
+                folder=folder,
+                public_id=f"{user['email'].split('@')[0]}_{os.path.splitext(file.filename)[0].replace(' ','_')}",
+                overwrite=True
+            )
+            return JSONResponse({'ok': True, 'image_url': result['secure_url']})
+        except Exception as e:
+            print(f'[Cloudinary] upload failed: {e}')
+    # Fallback: Google Drive
     try:
-        # Upload to Google Drive for permanent storage
-        from app.sheets_db import _get_spreadsheet
-        import io
-        content = await file.read()
-        creds_json = os.getenv('GOOGLE_CREDS_JSON', '')
-        creds_file = os.getenv('GOOGLE_CREDS_FILE', 'credentials.json')
         from google.oauth2.service_account import Credentials
         from googleapiclient.discovery import build
         from googleapiclient.http import MediaIoBaseUpload
+        import io, json as _j
         scopes = ['https://www.googleapis.com/auth/drive.file']
-        if creds_json:
-            import json as _j
-            creds = Credentials.from_service_account_info(_j.loads(creds_json), scopes=scopes)
-        else:
-            creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
-        drive = build('drive', 'v3', credentials=creds)
-        fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
-        media = MediaIoBaseUpload(io.BytesIO(content), mimetype=file.content_type)
-        f_meta = {'name': fname}
-        uploaded = drive.files().create(body=f_meta, media_body=media, fields='id').execute()
+        creds_json = os.getenv('GOOGLE_CREDS_JSON','')
+        creds_file = os.getenv('GOOGLE_CREDS_FILE','credentials.json')
+        creds = Credentials.from_service_account_info(_j.loads(creds_json), scopes=scopes) if creds_json \
+                else Credentials.from_service_account_file(creds_file, scopes=scopes)
+        drive  = build('drive','v3',credentials=creds)
+        fname  = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
+        media  = MediaIoBaseUpload(io.BytesIO(content), mimetype=file.content_type)
+        uploaded = drive.files().create(body={'name':fname}, media_body=media, fields='id').execute()
         fid = uploaded.get('id')
-        # Make file publicly readable
         drive.permissions().create(fileId=fid, body={'type':'anyone','role':'reader'}).execute()
-        if file.content_type == 'video/mp4':
-            url = f'https://drive.google.com/uc?export=download&id={fid}'
-        else:
-            url = f'https://drive.google.com/thumbnail?id={fid}&sz=w800'
+        url = f'https://drive.google.com/uc?export=download&id={fid}' if file.content_type=='video/mp4' \
+              else f'https://drive.google.com/thumbnail?id={fid}&sz=w800'
         return JSONResponse({'ok': True, 'image_url': url})
     except Exception as e:
-        import traceback; traceback.print_exc()
-        # Fallback to local disk
-        fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
-        fpath = os.path.join(STATIC_DIR, 'images', fname)
-        with open(fpath, 'wb') as lf:
-            lf.write(content)
-        return JSONResponse({'ok': True, 'image_url': f'/static/images/{fname}'})
+        print(f'[Drive] upload failed: {e}')
+    # Last resort: local disk (will break on redeploy)
+    fname = f"vendor_{user['email'].split('@')[0]}_{file.filename.replace(' ','_')}"
+    fpath = os.path.join(STATIC_DIR, 'images', fname)
+    with open(fpath, 'wb') as lf:
+        lf.write(content)
+    return JSONResponse({'ok': True, 'image_url': f'/static/images/{fname}', 'warning': 'Stored locally - will break on redeploy'})
 
 @app.post("/admin/review")
 async def admin_review(request: Request):
