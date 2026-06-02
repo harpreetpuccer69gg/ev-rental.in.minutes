@@ -18,11 +18,6 @@ SMTP_PASS = os.getenv('SMTP_PASS', '')
 
 
 def load_vendors():
-    from app.sheets_db import load_vendors_db
-    data = load_vendors_db()
-    if data:
-        return data
-    # fallback to local file
     with open(VENDORS_PATH, encoding='utf-8') as f:
         return json.load(f)
 
