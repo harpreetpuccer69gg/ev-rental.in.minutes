@@ -284,6 +284,20 @@ async def remove_vendor(request: Request):
     return JSONResponse({'ok': True, 'msg': f'Removed successfully'})
 
 
+@app.post("/admin/sync-vendors")
+async def sync_vendors(request: Request):
+    from app.vendor_auth import decode_token, save_vendors
+    d = await request.json()
+    user = decode_token(d.get('token',''))
+    if not user or user.get('role') != 'admin':
+        return JSONResponse({'ok': False, 'msg': 'Unauthorized'}, status_code=401)
+    with open(VENDORS_PATH, encoding='utf-8') as f:
+        import json as _j
+        data = _j.load(f)
+    save_vendors(data)
+    return JSONResponse({'ok': True, 'msg': f'Synced {len(data)} vendors to Google Sheet'})
+
+
 @app.post("/admin/remove-history")
 async def remove_history(request: Request):
     from app.vendor_auth import decode_token, load_vendors, save_vendors, git_push_vendors
