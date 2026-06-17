@@ -512,6 +512,10 @@ function updateCarousel(){
   slides[1].style.pointerEvents=yuvwaaCities.includes(city)?'auto':'none';
   slides[2].style.opacity=yuluCities.includes(city)?'1':'0';
   slides[2].style.pointerEvents=yuluCities.includes(city)?'auto':'none';
+  // Swap Yulu poster to city-specific image
+  const yuluImgMap={'bangalore':'/static/images/yulu_bangalore.jpeg','delhi ncr':'/static/images/yulu_delhi.jpeg','mumbai':'/static/images/yulu_mumbai.png','hyderabad':'/static/images/yulu_hyderabad.png','kolkata':'/static/images/yulu_kolkata.png','coimbatore':'/static/images/yulu_coimbatore.png','bhopal':'/static/images/yulu_bhopal.png','indore':'/static/images/yulu_indore.png','kochi':'/static/images/yulu_kochi.png','madurai':'/static/images/yulu_madurai.png','vadodara':'/static/images/yulu_vadodara.png','zirakpur':'/static/images/yulu_zirakpur.png'};
+  const yuluSlideImg=slides[2].querySelector('img');
+  if(yuluSlideImg)yuluSlideImg.src=yuluImgMap[city]||'/static/images/yulu_banner.jpeg';
   slides[3].style.opacity=bounceCities.includes(city)?'1':'0';
   slides[3].style.pointerEvents=bounceCities.includes(city)?'auto':'none';
   slides[4].style.opacity=kineticCities.includes(city)?'1':'0';
@@ -952,7 +956,8 @@ function shareEV(){
   else{navigator.clipboard&&navigator.clipboard.writeText(text).then(()=>alert('Copied to clipboard!'));}
 }
 function yuluClick(){
-  const yulu=vendors.find(v=>v.Vendor==='Yulu'&&(v.City||'').toLowerCase()==='delhi ncr');
+  const city=(document.getElementById('citySelect').value||'').toLowerCase();
+  const yulu=vendors.find(v=>v.Vendor==='Yulu'&&(v.City||'').toLowerCase()===city)||vendors.find(v=>v.Vendor==='Yulu');
   if(yulu)openDetail(yulu);
 }
 function shareEV(){
