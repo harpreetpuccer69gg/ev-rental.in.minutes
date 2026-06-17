@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 120" fill="none">
+  <!-- Rider body -->
+  <ellipse cx="130" cy="52" rx="18" ry="22" fill="#ffd600"/>
+  <!-- Helmet -->
+  <ellipse cx="130" cy="32" rx="13" ry="12" fill="#002d62"/>
+  <ellipse cx="130" cy="36" rx="13" ry="8" fill="#1a6ed8"/>
+  <!-- Helmet visor -->
+  <rect x="120" y="33" width="18" height="6" rx="3" fill="#ffd600" opacity="0.9"/>
+  <!-- Jacket -->
+  <rect x="116" y="50" width="28" height="20" rx="6" fill="#002d62"/>
+  <!-- Flipkart logo on jacket -->
+  <rect x="121" y="54" width="18" height="10" rx="3" fill="#ffd600"/>
+  <text x="130" y="62" font-size="6" font-weight="900" fill="#002d62" text-anchor="middle" font-family="Arial">FK</text>
+  <!-- Arm forward -->
+  <line x1="144" y1="58" x2="158" y2="62" stroke="#ffd600" stroke-width="5" stroke-linecap="round"/>
+  <!-- Arm back -->
+  <line x1="116" y1="60" x2="104" y2="64" stroke="#ffd600" stroke-width="5" stroke-linecap="round"/>
+  <!-- Leg -->
+  <line x1="126" y1="70" x2="118" y2="84" stroke="#002d62" stroke-width="6" stroke-linecap="round"/>
+  <line x1="138" y1="70" x2="148" y2="82" stroke="#002d62" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- SCOOTER BODY -->
+  <!-- Main body -->
+  <path d="M80 72 Q95 48 130 50 Q160 50 168 62 L172 72 Q155 80 110 80 Q88 82 80 72Z" fill="#1a6ed8"/>
+  <!-- Body shine -->
+  <path d="M95 56 Q115 50 138 52 Q125 48 100 54Z" fill="rgba(255,255,255,0.2)"/>
+  <!-- Seat -->
+  <ellipse cx="128" cy="68" rx="22" ry="5" fill="#002d62"/>
+  <!-- Handlebar -->
+  <line x1="158" y1="58" x2="170" y2="52" stroke="#ffd600" stroke-width="4" stroke-linecap="round"/>
+  <line x1="168" y1="50" x2="175" y2="54" stroke="#ffd600" stroke-width="3" stroke-linecap="round"/>
+  <!-- Headlight -->
+  <ellipse cx="174" cy="64" rx="7" ry="5" fill="#ffd600" opacity="0.9"/>
+  <ellipse cx="174" cy="64" rx="4" ry="3" fill="#fff" opacity="0.8"/>
+  <!-- Headlight beam -->
+  <path d="M180 62 L200 56 M180 64 L202 63 M180 66 L200 70" stroke="#ffd600" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <!-- Underbody -->
+  <path d="M88 76 Q130 82 168 74 L165 80 Q130 88 90 82Z" fill="#0b3a75"/>
+  <!-- Footrest -->
+  <line x1="100" y1="78" x2="92" y2="86" stroke="#ffd600" stroke-width="3" stroke-linecap="round"/>
+  <line x1="155" y1="76" x2="158" y2="84" stroke="#ffd600" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- FRONT WHEEL -->
+  <circle cx="168" cy="90" r="18" fill="#1a1a2e" stroke="#ffd600" stroke-width="3"/>
+  <circle cx="168" cy="90" r="10" fill="#0b3a75" stroke="#ffd600" stroke-width="1.5"/>
+  <circle cx="168" cy="90" r="3" fill="#ffd600"/>
+  <!-- Front wheel spokes -->
+  <line x1="168" y1="72" x2="168" y2="108" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="150" y1="90" x2="186" y2="90" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="155" y1="77" x2="181" y2="103" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="181" y1="77" x2="155" y2="103" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- REAR WHEEL -->
+  <circle cx="90" cy="90" r="18" fill="#1a1a2e" stroke="#ffd600" stroke-width="3"/>
+  <circle cx="90" cy="90" r="10" fill="#0b3a75" stroke="#ffd600" stroke-width="1.5"/>
+  <circle cx="90" cy="90" r="3" fill="#ffd600"/>
+  <!-- Rear wheel spokes -->
+  <line x1="90" y1="72" x2="90" y2="108" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="72" y1="90" x2="108" y2="90" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="77" y1="77" x2="103" y2="103" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+  <line x1="103" y1="77" x2="77" y2="103" stroke="#ffd600" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Lightning bolt (EV badge) -->
+  <polygon points="108,54 103,64 109,64 104,76 115,62 109,62 114,54" fill="#ffd600"/>
+</svg>
