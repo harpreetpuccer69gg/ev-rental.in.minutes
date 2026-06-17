@@ -347,12 +347,20 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#fff;}
     <div class="hero-slide poster-slide" onclick="bounceClick()" style="cursor:pointer;background:#1a1a2e;">
       <img src="/static/images/bounce_poster.png" alt="Bounce" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;"/>
     </div>
+    <div class="hero-slide poster-slide" onclick="kineticClick()" style="cursor:pointer;">
+      <img src="/static/images/KG_Poster.jpg" alt="Kinetic Green" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;"/>
+    </div>
+    <div class="hero-slide poster-slide" onclick="bijlirideClick()" style="cursor:pointer;">
+      <img src="/static/images/BR_poster.jpeg" alt="Bijliride" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;"/>
+    </div>
   </div>
   <div class="hero-dots">
     <div class="hero-dot active" onclick="goSlide(0)"></div>
     <div class="hero-dot" onclick="goSlide(1)"></div>
     <div class="hero-dot" onclick="goSlide(2)"></div>
     <div class="hero-dot" onclick="goSlide(3)"></div>
+    <div class="hero-dot" onclick="goSlide(4)"></div>
+    <div class="hero-dot" onclick="goSlide(5)"></div>
   </div>
 </div>
 
@@ -962,6 +970,16 @@ function yuvwaaClick(){
 function bounceClick(){
   const bounce=vendors.find(v=>v.Vendor==='Bounce');
   if(bounce)openDetail(bounce);
+}
+function kineticClick(){
+  const city=(document.getElementById('citySelect').value||'').toLowerCase();
+  const v=vendors.find(w=>w.Vendor==='Kinetic Green'&&(w.City||'').toLowerCase()===city)||vendors.find(w=>w.Vendor==='Kinetic Green');
+  if(v)openDetail(v);
+}
+function bijlirideClick(){
+  const city=(document.getElementById('citySelect').value||'').toLowerCase();
+  const v=vendors.find(w=>w.Vendor==='Bijliride'&&(w.City||'').toLowerCase()===city)||vendors.find(w=>w.Vendor==='Bijliride');
+  if(v)openDetail(v);
 }
 function closeSheet(){
   document.getElementById('overlay').classList.remove('show');
