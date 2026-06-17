@@ -489,7 +489,7 @@ fetch('/vendors').then(r=>r.json()).then(d=>{
   updateCarousel();
 }).catch(()=>{vendors=[];});
 
-const TOTAL_SLIDES=4;
+const TOTAL_SLIDES=6;
 let curSlide=0;
 let autoScrollInterval=null;
 let touchStartX=0;
@@ -501,9 +501,11 @@ function updateCarousel(){
   const yuvwaaCities=['pune'];
   const yuluCities=vendors.filter(v=>v.Vendor==='Yulu').map(v=>(v.City||'').toLowerCase());
   const bounceCities=vendors.filter(v=>v.Vendor==='Bounce').map(v=>(v.City||'').toLowerCase());
+  const kineticCities=vendors.filter(v=>v.Vendor==='Kinetic Green').map(v=>(v.City||'').toLowerCase());
+  const bijlirideCities=vendors.filter(v=>v.Vendor==='Bijliride').map(v=>(v.City||'').toLowerCase());
   const slides=document.querySelectorAll('.hero-slide');
   if(!city){
-    [1,2,3].forEach(i=>{slides[i].style.opacity='1';slides[i].style.pointerEvents='auto';});
+    [1,2,3,4,5].forEach(i=>{slides[i].style.opacity='1';slides[i].style.pointerEvents='auto';});
     return;
   }
   slides[1].style.opacity=yuvwaaCities.includes(city)?'1':'0';
@@ -512,12 +514,18 @@ function updateCarousel(){
   slides[2].style.pointerEvents=yuluCities.includes(city)?'auto':'none';
   slides[3].style.opacity=bounceCities.includes(city)?'1':'0';
   slides[3].style.pointerEvents=bounceCities.includes(city)?'auto':'none';
+  slides[4].style.opacity=kineticCities.includes(city)?'1':'0';
+  slides[4].style.pointerEvents=kineticCities.includes(city)?'auto':'none';
+  slides[5].style.opacity=bijlirideCities.includes(city)?'1':'0';
+  slides[5].style.pointerEvents=bijlirideCities.includes(city)?'auto':'none';
   // Reset to slide 0 and rebuild visible list
   curSlide=0;
   window._activeSlides=[0];
   if(yuvwaaCities.includes(city))window._activeSlides.push(1);
   if(yuluCities.includes(city))window._activeSlides.push(2);
   if(bounceCities.includes(city))window._activeSlides.push(3);
+  if(kineticCities.includes(city))window._activeSlides.push(4);
+  if(bijlirideCities.includes(city))window._activeSlides.push(5);
   // sync dots — show only dots for active slides
   const dots=document.querySelectorAll('.hero-dot');
   dots.forEach((d,i)=>d.style.display=window._activeSlides.includes(i)?'block':'none');
