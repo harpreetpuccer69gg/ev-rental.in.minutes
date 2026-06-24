@@ -359,7 +359,7 @@
     {
         "City": "Bangalore",
         "Vendor": "Bykemania",
-        "Status": "Live",
+        "Status": "Hidden",
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "E-Sprinto/BGauss",
         "Type": "Hi-Speed",
@@ -376,7 +376,7 @@
     {
         "City": "Hyderabad",
         "Vendor": "Bykemania",
-        "Status": "Live from next week",
+        "Status": "Hidden",
         "Battery Type": "Sun Mobility/Indofast Swap",
         "Make": "E-Sprinto/BGauss",
         "Type": "Hi-Speed",
