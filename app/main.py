@@ -53,9 +53,16 @@ async def startup_event():
 def get_vendors():
     try:
         from app.vendor_auth import load_vendors
-        return load_vendors()
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
+        data = load_vendors()
+        if not data:
+            raise ValueError("empty")
+        return JSONResponse(data)
+    except Exception:
+        try:
+            with open(VENDORS_PATH, encoding="utf-8") as f:
+                return JSONResponse(json.load(f))
+        except Exception as e:
+            return JSONResponse({"error": str(e)}, status_code=500)
 
 
 @app.post("/submit-lead")
@@ -92,14 +99,6 @@ async def submit_lead(request: Request):
         print(traceback.format_exc())
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 
-
-@app.get("/vendor")
-def vendor_portal():
-    return FileResponse(os.path.join(STATIC_DIR, "vendor_portal.html"))
-
-@app.get("/admin")
-def admin_dashboard():
-    return FileResponse(os.path.join(STATIC_DIR, "admin_dashboard.html"))
 
 @app.post("/vendor/register")
 async def vendor_register(request: Request):
@@ -298,6 +297,14 @@ async def sync_vendors(request: Request):
     return JSONResponse({'ok': True, 'msg': f'Synced {len(data)} vendors to Google Sheet'})
 
 
+@app.get("/vendor")
+def vendor_portal():
+    return FileResponse(os.path.join(STATIC_DIR, "vendor_portal.html"))
+
+@app.get("/admin")
+def admin_dashboard():
+    return FileResponse(os.path.join(STATIC_DIR, "admin_dashboard.html"))
+
 @app.post("/admin/remove-history")
 async def remove_history(request: Request):
     from app.vendor_auth import decode_token, load_vendors, save_vendors, git_push_vendors
@@ -334,8 +341,27 @@ async def remove_history(request: Request):
     return JSONResponse({'ok': True, 'msg': msg, 'removed_from_market': removed_from_market})
 
 
+@app.get("/health")
 def health():
     return {"status": "EV Assist is running 🚴"}
+
+
+@app.get("/bulk-request")
+def bulk_request_page():
+    return FileResponse(os.path.join(STATIC_DIR, "bulk_request.html"))
+
+
+@app.post("/submit-bulk-request")
+async def submit_bulk_request(request: Request):
+    data = await request.json()
+    try:
+        from app.sheets import log_bulk_request
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, log_bulk_request, data)
+        return JSONResponse({"status": "ok"})
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 
 
 @app.get("/bounce")

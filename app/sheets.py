@@ -37,27 +37,54 @@ IST = timezone(timedelta(hours=5, minutes=30))
 
 
 _sheet_cache = None
+_bulk_sheet_cache = None
+
+BULK_HEADERS = [
+    "Timestamp", "FC Name", "Hub ID", "Phone", "City", "Vendor",
+    "EV Type", "Make", "Quantity", "Required By", "Notes", "Status"
+]
+
+def _get_client():
+    creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
+    if creds_json:
+        creds = Credentials.from_service_account_info(json.loads(creds_json), scopes=SCOPES)
+    else:
+        creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
+    return gspread.authorize(creds)
 
 def get_sheet():
     global _sheet_cache
     if _sheet_cache is not None:
         try:
-            _sheet_cache.cell(1, 1)  # test connection is still alive
+            _sheet_cache.cell(1, 1)
             return _sheet_cache
         except Exception:
-            _sheet_cache = None  # reset if stale
-    creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
-    if creds_json:
-        info = json.loads(creds_json)
-        creds = Credentials.from_service_account_info(info, scopes=SCOPES)
-    else:
-        creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
-    client = gspread.authorize(creds)
+            _sheet_cache = None
+    client = _get_client()
     sheet = client.open_by_key(SHEET_ID).worksheet("Leads ")
     if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
         sheet.insert_row(HEADERS, 1)
     _sheet_cache = sheet
     return _sheet_cache
+
+def get_bulk_sheet():
+    global _bulk_sheet_cache
+    if _bulk_sheet_cache is not None:
+        try:
+            _bulk_sheet_cache.cell(1, 1)
+            return _bulk_sheet_cache
+        except Exception:
+            _bulk_sheet_cache = None
+    client = _get_client()
+    wb = client.open_by_key(SHEET_ID)
+    try:
+        sheet = wb.worksheet("Bulk Requests")
+    except gspread.exceptions.WorksheetNotFound:
+        sheet = wb.add_worksheet(title="Bulk Requests", rows=1000, cols=15)
+    if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
+        sheet.insert_row(BULK_HEADERS, 1)
+    _bulk_sheet_cache = sheet
+    return _bulk_sheet_cache
 
 
 def log_lead(session: dict, phone: str):
@@ -81,3 +108,21 @@ def log_lead(session: dict, phone: str):
         "Pending"
     ]
     get_sheet().append_row(row)
+
+
+def log_bulk_request(data: dict):
+    row = [
+        datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST"),
+        data.get("fc_name", ""),
+        data.get("hub_id", ""),
+        data.get("phone", ""),
+        data.get("city", ""),
+        data.get("vendor", ""),
+        data.get("ev_type", ""),
+        data.get("make", ""),
+        data.get("quantity", ""),
+        data.get("required_by", ""),
+        data.get("notes", ""),
+        "New Request"
+    ]
+    get_bulk_sheet().append_row(row)

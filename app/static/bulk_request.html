@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulk EV Request — FR/FC Portal</title>
+<style>
+  :root {
+    --fk: #2874f0;
+    --fk-dark: #1a5dc8;
+    --fk-light: #e8f0fe;
+    --green: #1a8a5a;
+    --green-light: #d4f0e4;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --text: #1a202c;
+    --sub: #5a6474;
+    --border: #dde3ed;
+    --bg: #f0f4fb;
+    --white: #ffffff;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(40,116,240,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #1a3a6b 0%, #2874f0 100%);
+    padding: 0 20px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .header-inner {
+    max-width: 640px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 34px; height: 34px; background: #fff;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .header-title { color: #fff; }
+  .header-title h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.2px; }
+  .header-title span { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .header-badge {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    padding: 3px 10px; border-radius: 99px; text-transform: uppercase;
+  }
+
+  /* ── Layout ── */
+  .page { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* ── Info Banner ── */
+  .info-banner {
+    background: linear-gradient(135deg, #e8f0fe, #f0f4fb);
+    border: 1px solid #c5d8fd; border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 20px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .info-banner .icon { font-size: 22px; line-height: 1; margin-top: 1px; }
+  .info-banner h3 { font-size: 14px; font-weight: 600; color: var(--fk-dark); margin-bottom: 2px; }
+  .info-banner p { font-size: 12px; color: var(--sub); line-height: 1.5; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .card-header {
+    background: linear-gradient(135deg, #f8faff, #eef3fd);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 24px;
+  }
+  .card-header h2 { font-size: 17px; font-weight: 700; color: var(--text); }
+  .card-header p { font-size: 12px; color: var(--sub); margin-top: 3px; }
+  .card-body { padding: 24px; }
+
+  /* ── Section Dividers ── */
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+    color: var(--fk); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    margin: 20px 0 14px;
+  }
+  .section-label:first-child { margin-top: 0; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── Form fields ── */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: flex; align-items: center; gap-4px;
+    font-size: 12px; font-weight: 600; color: var(--sub);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    margin-bottom: 6px;
+  }
+  .req { color: #e53e3e; margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 14px; color: var(--text); background: #fafbfd;
+    outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+    appearance: none; -webkit-appearance: none;
+  }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6474' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 36px;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--fk); background: #fff;
+    box-shadow: 0 0 0 3px rgba(40,116,240,0.1);
+  }
+  .field input:disabled, .field select:disabled { opacity: 0.5; cursor: not-allowed; }
+  .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 440px) { .row { grid-template-columns: 1fr; } }
+
+  /* ── Alerts ── */
+  .alert {
+    display: none; border-radius: 8px; padding: 11px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 16px;
+  }
+  .alert-error { background: var(--red-light); border: 1px solid #f5c6c2; color: var(--red); }
+  .alert-info { background: var(--fk-light); border: 1px solid #c5d8fd; color: var(--fk-dark); }
+
+  /* ── Loading ── */
+  .loading-row {
+    display: none; align-items: center; gap: 10px;
+    padding: 12px 0; margin-bottom: 8px;
+    font-size: 13px; color: var(--fk);
+  }
+  .spinner {
+    width: 18px; height: 18px; border: 2px solid var(--fk-light);
+    border-top-color: var(--fk); border-radius: 50%;
+    animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Submit Button ── */
+  .btn-submit {
+    width: 100%; padding: 14px; margin-top: 8px;
+    background: linear-gradient(135deg, var(--fk), var(--fk-dark));
+    color: #fff; border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 700; letter-spacing: 0.3px;
+    cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-submit:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
+  .btn-submit:active:not(:disabled) { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  /* ── Success State ── */
+  #successPanel {
+    display: none; text-align: center; padding: 48px 24px;
+  }
+  .success-circle {
+    width: 72px; height: 72px; background: var(--green-light);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 20px;
+  }
+  #successPanel h3 { font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+  #successPanel p { font-size: 14px; color: var(--sub); line-height: 1.6; }
+  .success-meta {
+    background: var(--green-light); border-radius: 8px;
+    padding: 14px 18px; margin: 20px 0; text-align: left;
+  }
+  .success-meta p { font-size: 13px; color: var(--green); margin: 3px 0; }
+  .success-meta strong { color: #145a38; }
+  .btn-reset {
+    padding: 11px 32px; background: var(--fk); color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-reset:hover { opacity: 0.88; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center; padding: 20px;
+    font-size: 11px; color: #a0aec0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-logo">⚡</div>
+      <div class="header-title">
+        <h1>EV Assist</h1>
+        <span>Flipkart Minutes · Ground Team Portal</span>
+      </div>
+    </div>
+    <div class="header-badge">FR / FC</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="info-banner">
+    <div class="icon">📋</div>
+    <div>
+      <h3>Bulk Vehicle Request</h3>
+      <p>Submit your hub's EV requirement below. Vendor SPOC will confirm availability and contact you within <strong>24 hours</strong>.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>New Bulk EV Request</h2>
+      <p>All fields marked <span style="color:#e53e3e">*</span> are required</p>
+    </div>
+    <div class="card-body">
+
+      <div class="loading-row" id="loadingBar">
+        <div class="spinner"></div>
+        Loading vendor & city data…
+      </div>
+      <div class="alert alert-error" id="loadError"></div>
+
+      <form id="bulkForm" autocomplete="off">
+
+        <div class="section-label">👤 Contact Details</div>
+
+        <div class="row">
+          <div class="field">
+            <label>FC / Hub Name <span class="req">*</span></label>
+            <input type="text" id="fc_name" placeholder="e.g. Ankit Sharma" required>
+          </div>
+          <div class="field">
+            <label>Hub ID / FC Code <span class="req">*</span></label>
+            <input type="text" id="hub_id" placeholder="e.g. BLR_FC_07" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10" pattern="[6-9][0-9]{9}" required>
+        </div>
+
+        <div class="section-label">🛵 Vehicle Selection</div>
+
+        <div class="row">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <select id="city" required>
+              <option value="">— Select City —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Vendor <span class="req">*</span></label>
+            <select id="vendor" required>
+              <option value="">— Select Vendor —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>EV Type <span class="req">*</span></label>
+            <select id="ev_type" required>
+              <option value="">— Select Type —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Make / Model</label>
+            <select id="make">
+              <option value="">— Select Make —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-label">📦 Requirement Details</div>
+
+        <div class="row">
+          <div class="field">
+            <label>Quantity Needed <span class="req">*</span></label>
+            <input type="number" id="quantity" min="1" max="500" placeholder="e.g. 25" required>
+          </div>
+          <div class="field">
+            <label>Required By Date <span class="req">*</span></label>
+            <input type="date" id="required_by" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Additional Notes</label>
+          <textarea id="notes" placeholder="Delivery location, specific model preference, charging requirements, etc."></textarea>
+        </div>
+
+        <div class="alert alert-error" id="submitError"></div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span>⚡</span> Submit Bulk Request
+        </button>
+
+      </form>
+
+      <div id="successPanel">
+        <div class="success-circle">✅</div>
+        <h3>Request Submitted!</h3>
+        <p>Your bulk EV request has been logged successfully.</p>
+        <div class="success-meta" id="successMeta"></div>
+        <p style="font-size:13px;color:var(--sub);margin-bottom:20px;">The vendor SPOC will reach out within <strong>24 hours</strong> to confirm availability.</p>
+        <button class="btn-reset" onclick="resetForm()">Submit Another Request</button>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>EV Assist · Flipkart Minutes · Internal Use Only</footer>
+</div>
+
+<script>
+let vendorsData = [];
+
+function resetSelect(id, label) {
+  document.getElementById(id).innerHTML = `<option value="">${label}</option>`;
+}
+
+function setLoading(on) {
+  document.getElementById('loadingBar').style.display = on ? 'flex' : 'none';
+  document.getElementById('bulkForm').style.opacity = on ? '0.45' : '1';
+  document.getElementById('bulkForm').style.pointerEvents = on ? 'none' : 'auto';
+}
+
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function hideAlert(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+async function loadVendors() {
+  setLoading(true);
+  try {
+    const res = await fetch('/vendors');
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    const json = await res.json();
+    if (!Array.isArray(json) || json.length === 0) throw new Error('No vendor data');
+    vendorsData = json;
+    const cities = [...new Set(vendorsData.filter(v => v.Status === 'Live').map(v => v.City))].sort();
+    cities.forEach(c => document.getElementById('city').add(new Option(c, c)));
+  } catch (e) {
+    showAlert('loadError', '⚠️ Could not load vendor data. Please refresh the page or try again in a moment.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+document.getElementById('city').addEventListener('change', function () {
+  resetSelect('vendor', '— Select Vendor —');
+  resetSelect('ev_type', '— Select Type —');
+  resetSelect('make', '— Select Make —');
+  const vendors = [...new Set(vendorsData.filter(v => v.City === this.value && v.Status === 'Live').map(v => v.Vendor))].sort();
+  vendors.forEach(v => document.getElementById('vendor').add(new Option(v, v)));
+});
+
+document.getElementById('vendor').addEventListener('change', function () {
+  resetSelect('ev_type', '— Select Type —');
+  resetSelect('make', '— Select Make —');
+  const city = document.getElementById('city').value;
+  const filtered = vendorsData.filter(v => v.City === city && v.Vendor === this.value && v.Status === 'Live');
+  [...new Set(filtered.map(v => v.Type))].sort().forEach(t => document.getElementById('ev_type').add(new Option(t, t)));
+  [...new Set(filtered.map(v => v.Make))].sort().forEach(m => document.getElementById('make').add(new Option(m, m)));
+});
+
+document.getElementById('ev_type').addEventListener('change', function () {
+  const city = document.getElementById('city').value;
+  const vendor = document.getElementById('vendor').value;
+  const filtered = vendorsData.filter(v => v.City === city && v.Vendor === vendor && v.Status === 'Live' && (!this.value || v.Type === this.value));
+  resetSelect('make', '— Select Make —');
+  [...new Set(filtered.map(v => v.Make))].sort().forEach(m => document.getElementById('make').add(new Option(m, m)));
+});
+
+document.getElementById('bulkForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  hideAlert('submitError');
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,0.3);width:16px;height:16px;"></div> Submitting…';
+
+  const payload = {
+    fc_name: document.getElementById('fc_name').value.trim(),
+    hub_id: document.getElementById('hub_id').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    city: document.getElementById('city').value,
+    vendor: document.getElementById('vendor').value,
+    ev_type: document.getElementById('ev_type').value,
+    make: document.getElementById('make').value,
+    quantity: document.getElementById('quantity').value,
+    required_by: document.getElementById('required_by').value,
+    notes: document.getElementById('notes').value.trim()
+  };
+
+  try {
+    const res = await fetch('/submit-bulk-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      document.getElementById('successMeta').innerHTML = `
+        <p>🏢 <strong>Hub:</strong> ${payload.fc_name} · ${payload.hub_id}</p>
+        <p>📍 <strong>City:</strong> ${payload.city} · ${payload.vendor}</p>
+        <p>🛵 <strong>Vehicle:</strong> ${payload.ev_type}${payload.make ? ' · ' + payload.make : ''}</p>
+        <p>📦 <strong>Quantity:</strong> ${payload.quantity} units · Needed by ${payload.required_by}</p>`;
+      document.getElementById('bulkForm').style.display = 'none';
+      document.getElementById('successPanel').style.display = 'block';
+    } else {
+      showAlert('submitError', '❌ ' + (data.detail || 'Submission failed. Please try again.'));
+      btn.disabled = false;
+      btn.innerHTML = '<span>⚡</span> Submit Bulk Request';
+    }
+  } catch {
+    showAlert('submitError', '❌ Network error. Please check your connection and try again.');
+    btn.disabled = false;
+    btn.innerHTML = '<span>⚡</span> Submit Bulk Request';
+  }
+});
+
+function resetForm() {
+  document.getElementById('bulkForm').reset();
+  document.getElementById('bulkForm').style.display = 'block';
+  document.getElementById('successPanel').style.display = 'none';
+  hideAlert('submitError');
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<span>⚡</span> Submit Bulk Request';
+  resetSelect('vendor', '— Select Vendor —');
+  resetSelect('ev_type', '— Select Type —');
+  resetSelect('make', '— Select Make —');
+}
+
+// Set min date to today
+document.getElementById('required_by').min = new Date().toISOString().split('T')[0];
+
+loadVendors();
+</script>
+</body>
+</html>
