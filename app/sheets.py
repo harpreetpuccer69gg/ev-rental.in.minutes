@@ -41,7 +41,8 @@ _bulk_sheet_cache = None
 
 BULK_HEADERS = [
     "Timestamp", "FC Name", "Hub ID", "Phone", "City", "Vendor",
-    "EV Type", "Make", "Quantity", "Required By", "Notes", "Status"
+    "EV Type", "Make", "Quantity", "Required By", "Notes",
+    "Latitude", "Longitude", "Maps Link", "Status"
 ]
 
 def _get_client():
@@ -123,6 +124,9 @@ def log_bulk_request(data: dict):
         data.get("quantity", ""),
         data.get("required_by", ""),
         data.get("notes", ""),
+        data.get("latitude", ""),
+        data.get("longitude", ""),
+        f"https://www.google.com/maps?q={data.get('latitude','')},{data.get('longitude','')}" if data.get("latitude") else "",
         "New Request"
     ]
     get_bulk_sheet().append_row(row)
