@@ -27,11 +27,15 @@ def get_cached_sheet():
 
 @app.on_event("startup")
 async def startup_event():
+    creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
+    creds_file = os.getenv("GOOGLE_CREDS_FILE", "credentials.json")
+    if not creds_json and not os.path.exists(os.path.join(os.path.dirname(__file__), "..", creds_file)):
+        print("⚠️  WARNING: GOOGLE_CREDS_JSON env var not set and credentials.json not found. Leads will NOT be logged!")
     try:
         get_cached_sheet()
-        print("Google Sheet connection established at startup")
+        print("✅ Google Sheet connection established at startup")
     except Exception as e:
-        print(f"Startup sheet connection failed: {e}")
+        print(f"❌ Startup sheet connection failed: {e}")
     # Seed Vendors DB sheet if empty
     try:
         from app.sheets_db import load_vendors_db, save_vendors_db

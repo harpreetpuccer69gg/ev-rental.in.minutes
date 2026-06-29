@@ -47,32 +47,42 @@ BULK_HEADERS = [
 
 def _get_client():
     creds_json = os.getenv("GOOGLE_CREDS_JSON", "")
+    if not creds_json and not os.path.exists(CREDS_FILE):
+        raise RuntimeError("No Google credentials found. Set GOOGLE_CREDS_JSON env var on Render.")
     if creds_json:
         creds = Credentials.from_service_account_info(json.loads(creds_json), scopes=SCOPES)
     else:
         creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
     return gspread.authorize(creds)
 
+def _find_or_create_leads_sheet(wb):
+    """Find the Leads sheet by trying multiple name variants, create if missing."""
+    for name in ("Leads", "Leads ", "leads", "Sheet1"):
+        try:
+            return wb.worksheet(name)
+        except gspread.exceptions.WorksheetNotFound:
+            continue
+    # Create it fresh
+    sheet = wb.add_worksheet(title="Leads", rows=5000, cols=20)
+    sheet.insert_row(HEADERS, 1)
+    print("Created new Leads worksheet")
+    return sheet
+
 def get_sheet():
     global _sheet_cache
     if _sheet_cache is not None:
         try:
-            _sheet_cache.cell(1, 1)
+            _sheet_cache.cell(1, 1)  # ping to check connection is alive
             return _sheet_cache
         except Exception:
-            _sheet_cache = None
+            _sheet_cache = None  # reset and reconnect
     client = _get_client()
     wb = client.open_by_key(SHEET_ID)
-    try:
-        sheet = wb.worksheet("Leads")
-    except Exception:
-        try:
-            sheet = wb.worksheet("Leads ")
-        except Exception:
-            sheet = wb.get_worksheet(0)
+    sheet = _find_or_create_leads_sheet(wb)
     if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
         sheet.insert_row(HEADERS, 1)
     _sheet_cache = sheet
+    print(f"✅ Connected to sheet tab: '{sheet.title}'")
     return _sheet_cache
 
 def get_bulk_sheet():
@@ -96,6 +106,7 @@ def get_bulk_sheet():
 
 
 def log_lead(session: dict, phone: str):
+    global _sheet_cache
     chosen = session.get("chosen", {})
     row = [
         datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST"),
@@ -104,7 +115,7 @@ def log_lead(session: dict, phone: str):
         session.get("city", "") if session.get("city", "").strip().lower() in KNOWN_CITIES else f"Others: {session.get('city', '')}",
         LANG_LABELS.get(session.get("lang", "en"), "English"),
         ", ".join([BUDGET_LABELS.get(str(b), "") for b in (session.get("budget") or [])]) if isinstance(session.get("budget"), list) else BUDGET_LABELS.get(str(session.get("budget", "")), ""),
-        "",  # Range Preference - kept for column alignment
+        "",
         chosen.get("Vendor", ""),
         chosen.get("Make", ""),
         chosen.get("Type", ""),
@@ -113,9 +124,13 @@ def log_lead(session: dict, phone: str):
         chosen.get("Refundable Deposit", ""),
         chosen.get("SPOC", ""),
         chosen.get("Phone", ""),
-        "Pending"
+        "New Lead"
     ]
-    get_sheet().append_row(row)
+    try:
+        get_sheet().append_row(row)
+    except Exception:
+        _sheet_cache = None  # force reconnect on next call
+        get_sheet().append_row(row)  # retry once
 
 
 def log_bulk_request(data: dict):
