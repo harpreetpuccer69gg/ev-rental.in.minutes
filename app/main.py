@@ -91,11 +91,11 @@ async def submit_lead(request: Request):
         # Run sheet write in thread so it fully completes before response
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, log_lead, session, data.get("phone", ""))
-        print(f"Lead logged: {data.get('name')} - {data.get('city')}")
+        print(f"✅ Lead logged to sheet: {data.get('name')} - {data.get('vendor')} - {data.get('city')}")
         return JSONResponse({"status": "ok"})
     except Exception as e:
         import traceback
-        print(f"Sheet error: {e}")
+        print(f"❌ Sheet write FAILED for {data.get('name')} - {data.get('city')}: {e}")
         print(traceback.format_exc())
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
 

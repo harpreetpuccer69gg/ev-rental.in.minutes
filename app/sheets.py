@@ -62,7 +62,14 @@ def get_sheet():
         except Exception:
             _sheet_cache = None
     client = _get_client()
-    sheet = client.open_by_key(SHEET_ID).worksheet("Leads ")
+    wb = client.open_by_key(SHEET_ID)
+    try:
+        sheet = wb.worksheet("Leads")
+    except Exception:
+        try:
+            sheet = wb.worksheet("Leads ")
+        except Exception:
+            sheet = wb.get_worksheet(0)
     if not sheet.get_all_values() or sheet.cell(1, 1).value != "Timestamp":
         sheet.insert_row(HEADERS, 1)
     _sheet_cache = sheet
