@@ -345,6 +345,11 @@ async def remove_history(request: Request):
     return JSONResponse({'ok': True, 'msg': msg, 'removed_from_market': removed_from_market})
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse(os.path.join(STATIC_DIR, "images", "logo.png"), media_type="image/png")
+
+
 @app.get("/health")
 def health():
     return {"status": "EV Assist is running 🚴"}
