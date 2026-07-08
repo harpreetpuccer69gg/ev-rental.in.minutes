@@ -1632,5 +1632,39 @@
         "Phone": null,
         "Email": null,
         "Image": "/static/images/motoease_hcd.jpeg"
+    },
+    {
+        "City": "Delhi NCR",
+        "Vendor": "Woltzenergy",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Woltz Argos 50",
+        "Type": "Low Speed",
+        "Approx Rental/Week": "750",
+        "Range (Km)": "50",
+        "Security Deposit": "1000",
+        "Refundable Deposit": "1000",
+        "Charging/Swap": "Charging",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/woltzenergy.png"
+    },
+    {
+        "City": "Delhi NCR",
+        "Vendor": "Woltzenergy",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Woltz Argos 80",
+        "Type": "Low Speed",
+        "Approx Rental/Week": "1000",
+        "Range (Km)": "50-70",
+        "Security Deposit": "1000",
+        "Refundable Deposit": "1000",
+        "Charging/Swap": "Charging",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/woltzenergy.png"
     }
 ]
