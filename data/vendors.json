@@ -1598,5 +1598,39 @@
         "Phone": "7428294471",
         "Email": null,
         "Image": "/static/images/eveez.jpg"
+    },
+    {
+        "City": "Lucknow",
+        "Vendor": "Motoease",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Motoease Raftaar 1",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1999",
+        "Range (Km)": "70",
+        "Security Deposit": "2000",
+        "Refundable Deposit": "2000",
+        "Charging/Swap": "Charging",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/motoease_raftaar.jpeg"
+    },
+    {
+        "City": "Lucknow",
+        "Vendor": "Motoease",
+        "Status": "Live",
+        "Battery Type": "Home/Store Charging",
+        "Make": "Motoease HCD Easey",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1610",
+        "Range (Km)": "70",
+        "Security Deposit": "2000",
+        "Refundable Deposit": "2000",
+        "Charging/Swap": "Charging",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/motoease_hcd.jpeg"
     }
 ]
