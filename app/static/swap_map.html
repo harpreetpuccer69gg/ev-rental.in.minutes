@@ -2,74 +2,100 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Swap Stations Map – EV Assist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Swap Stations – EV Assist</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#222}
-  header{background:#1a1a2e;color:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px}
-  header img{height:32px}
-  header h1{font-size:17px;font-weight:700}
-  header span{font-size:12px;opacity:.7;margin-left:auto}
-  .filters{background:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;border-bottom:1px solid #e0e0e0;align-items:center}
-  .filters select{padding:8px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:#fff;cursor:pointer}
-  .filters select:focus{outline:none;border-color:#4CAF50}
-  .badge{background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600}
-  #map{height:calc(100vh - 120px);width:100%}
-  .popup-box{min-width:200px}
-  .popup-box h3{font-size:14px;font-weight:700;margin-bottom:6px;color:#1a1a2e}
-  .popup-box p{font-size:12px;color:#555;margin-bottom:4px}
-  .popup-box .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-bottom:8px}
-  .tag-indofast{background:#fff3e0;color:#e65100}
-  .tag-yuma{background:#e3f2fd;color:#1565c0}
-  .tag-battery{background:#f3e5f5;color:#6a1b9a}
-  .tag-emo{background:#e8f5e9;color:#2e7d32}
-  .dir-btn{display:block;width:100%;padding:8px;background:#4CAF50;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:4px}
-  .dir-btn:hover{background:#388e3c}
-  .legend{position:absolute;bottom:30px;left:10px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px}
-  .legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-  .legend-dot{width:12px;height:12px;border-radius:50%}
-  @media(max-width:500px){
-    .filters{gap:8px}
-    .filters select{font-size:13px;padding:7px 10px}
-    #map{height:calc(100vh - 140px)}
-  }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;overflow:hidden}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header img{height:28px;border-radius:6px}
+.header h1{font-size:16px;font-weight:700;letter-spacing:.3px}
+.header .back-link{margin-left:auto;background:rgba(255,255,255,.15);color:#fff;text-decoration:none;font-size:12px;font-weight:600;padding:6px 12px;border-radius:20px;white-space:nowrap}
+
+/* FILTERS BAR */
+.filters{background:#fff;padding:10px 12px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #e8eaed;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.filter-select{padding:7px 10px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;background:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;color:#1a1a2e;font-weight:500}
+.filter-select:focus{outline:none;border-color:#4CAF50}
+.count-pill{background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0}
+
+/* MAP */
+#map{height:calc(100vh - 108px);width:100%}
+
+/* LOCATION BUTTON */
+.loc-btn{position:absolute;bottom:100px;right:12px;z-index:1000;width:46px;height:46px;background:#fff;border:none;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.25);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .15s}
+.loc-btn:active{transform:scale(.92)}
+.loc-btn.loading{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LEGEND */
+.legend{position:absolute;bottom:160px;left:12px;z-index:1000;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 2px 10px rgba(0,0,0,.15);font-size:12px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-weight:500}
+.legend-item:last-child{margin-bottom:0}
+.legend-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+
+/* POPUP */
+.popup-box{min-width:210px;font-family:'Segoe UI',sans-serif}
+.popup-box h3{font-size:14px;font-weight:700;margin-bottom:5px;color:#1a1a2e;line-height:1.3}
+.popup-box .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px}
+.popup-box p{font-size:12px;color:#666;margin-bottom:3px}
+.dir-btn{display:block;width:100%;padding:9px;background:linear-gradient(135deg,#4CAF50,#388e3c);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;margin-top:8px;letter-spacing:.3px}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* NEARBY BADGE */
+.nearby-badge{background:#fff3e0;color:#e65100;border:1.5px solid #ffcc80;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;display:none}
+
+@media(max-width:480px){
+  .header h1{font-size:14px}
+  #map{height:calc(100vh - 104px)}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <img src="/static/images/logo.png" alt="EV Assist" onerror="this.style.display='none'"/>
-  <h1>⚡ Swap Stations Map</h1>
-  <span id="count-badge" class="badge">Loading...</span>
-</header>
+<div class="header">
+  <img src="/static/images/logo.png" alt="EV" onerror="this.style.display='none'"/>
+  <h1>⚡ Battery Swap Stations</h1>
+  <a href="/" class="back-link">← Back</a>
+</div>
 
 <div class="filters">
-  <select id="vendor-filter">
-    <option value="">All Vendors</option>
+  <select class="filter-select" id="vendor-filter">
+    <option value="">All Networks</option>
     <option value="Indofast">Indofast</option>
-    <option value="Yuma">Yuma</option>
+    <option value="Yuma">Yuma (Yulu)</option>
     <option value="Battery Smart">Battery Smart</option>
     <option value="EMO">EMO</option>
   </select>
-  <select id="city-filter">
+  <select class="filter-select" id="city-filter">
     <option value="">All Cities</option>
   </select>
-  <a href="/" style="margin-left:auto;font-size:13px;color:#4CAF50;text-decoration:none;font-weight:600">← Back to App</a>
+  <span class="count-pill" id="count-badge">Loading...</span>
+  <span class="nearby-badge" id="nearby-badge">📍 Near You</span>
 </div>
 
 <div id="map"></div>
 
+<button class="loc-btn" id="locBtn" title="Find my location" onclick="findMyLocation()">📍</button>
+
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Indofast</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#1565c0"></div> Yuma</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#6a1b9a"></div> Battery Smart</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div> EMO</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div>Indofast</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1565c0"></div>Yuma</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6a1b9a"></div>Battery Smart</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div>EMO</div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+// ── VENDOR COLORS ──────────────────────────────────────────────
 const COLORS = {
   'Indofast':      '#e65100',
   'Yuma':          '#1565c0',
@@ -77,26 +103,25 @@ const COLORS = {
   'EMO':           '#2e7d32'
 };
 
-function markerColor(vendor) {
-  return COLORS[vendor] || '#555';
-}
-
-function makeIcon(vendor) {
-  const c = markerColor(vendor);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30">
-    <path d="M11 0C4.9 0 0 4.9 0 11c0 8.3 11 19 11 19s11-10.7 11-19C22 4.9 17.1 0 11 0z" fill="${c}"/>
-    <circle cx="11" cy="11" r="5" fill="#fff"/>
+function makeIcon(vendor, highlight) {
+  const c = COLORS[vendor] || '#555';
+  const size = highlight ? 28 : 22;
+  const r    = highlight ? 38 : 30;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${r}" viewBox="0 0 ${size} ${r}">
+    <path d="M${size/2} 0C${size/2-6.1} 0 0 ${size/2-5.1} 0 ${size/2}c0 ${r-size/2-2} ${size/2} ${r-size/2+2} ${size/2} ${r-size/2+2}s${size/2}-${r-size/2} ${size/2}-${r-size/2+2}C${size} ${size/2-5.1} ${size/2+6.1} 0 ${size/2} 0z" fill="${c}" ${highlight?'stroke="#fff" stroke-width="2"':''}/>
+    <circle cx="${size/2}" cy="${size/2}" r="${size/2-5}" fill="#fff"/>
+    <text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-size="${size/2-3}" fill="${c}" font-weight="bold">⚡</text>
   </svg>`;
   return L.divIcon({
     html: svg,
     className: '',
-    iconSize: [22, 30],
-    iconAnchor: [11, 30],
-    popupAnchor: [0, -30]
+    iconSize:   [size, r],
+    iconAnchor: [size/2, r],
+    popupAnchor:[0, -r]
   });
 }
 
-// City → approximate center for auto-zoom
+// ── CITY CENTERS ───────────────────────────────────────────────
 const CITY_CENTERS = {
   'Bangalore':  [12.97, 77.59],
   'Delhi NCR':  [28.62, 77.21],
@@ -108,185 +133,111 @@ const CITY_CENTERS = {
   'Jaipur':     [26.91, 75.79],
   'Chandigarh': [30.73, 76.78],
   'Kochi':      [9.93,  76.27],
-  'Lucknow':    [26.85, 80.95],
   'Noida':      [28.54, 77.39],
-  'Gurugram':   [28.46, 77.03]
+  'Gurugram':   [28.46, 77.03],
+  'Agra':       [27.18, 78.01],
+  'Vijayawada': [16.51, 80.63],
+  'Sonipat':    [28.99, 77.02]
 };
 
-// Detect city from area name
+// ── CITY DETECTION ─────────────────────────────────────────────
 function detectCity(area) {
   const a = area.toLowerCase();
-  if (a.includes('koramangala') || a.includes('hsr') || a.includes('whitefield') ||
-      a.includes('yelahanka') || a.includes('peenya') || a.includes('btm') ||
-      a.includes('bannerghata') || a.includes('marathalli') || a.includes('hoodi') ||
-      a.includes('thanisandra') || a.includes('yeshwanthpur') || a.includes('domlur') ||
-      a.includes('jayanagar') || a.includes('rajajinagar') || a.includes('kalkere') ||
-      a.includes('electronics city') || a.includes('bommanahalli') || a.includes('belathur') ||
-      a.includes('varthur') || a.includes('chikkabellandur') || a.includes('nagasandra') ||
-      a.includes('padmanabhanagar') || a.includes('seshadripuram') || a.includes('sanjay nagar') ||
-      a.includes('banaswadi') || a.includes('frazer town') || a.includes('cox town') ||
-      a.includes('kalyan nagar') || a.includes('rr nagar') || a.includes('mallathalli') ||
-      a.includes('gottigere') || a.includes('banashankari') || a.includes('uttarahalli') ||
-      a.includes('kanakapura') || a.includes('jigani') || a.includes('bommasandra') ||
-      a.includes('doddanekkundi') || a.includes('anand nagar') || a.includes('nagavara') ||
-      a.includes('budigere') || a.includes('devanahalli') || a.includes('bagalur') ||
-      a.includes('akshaya nagar') || a.includes('mailsandra') || a.includes('hosa road') ||
-      a.includes('singasandra') || a.includes('e-city') || a.includes('ecity') ||
-      a.includes('manipal county') || a.includes('gopalan mall') || a.includes('mahadevapura') ||
-      a.includes('kr puram') || a.includes('kodigehalli') || a.includes('nagarbhavi') ||
-      a.includes('heganahalli') || a.includes('azad nagar') || a.includes('adugodi') ||
-      a.includes('doddanagamangala') || a.includes('sompura') || a.includes('dommasandra'))
-    return 'Bangalore';
-  if (a.includes('rohini') || a.includes('dwarka') || a.includes('janakpuri') ||
-      a.includes('hari nagar') || a.includes('paschim vihar') || a.includes('pitampura') ||
-      a.includes('moti nagar') || a.includes('karol bagh') || a.includes('tis hazari') ||
-      a.includes('connaught') || a.includes('vasant vihar') || a.includes('vasant kunj') ||
-      a.includes('sarita vihar') || a.includes('laxmi nagar') || a.includes('geeta colony') ||
-      a.includes('jhilmil') || a.includes('mandoli') || a.includes('brij puri') ||
-      a.includes('jahangirpuri') || a.includes('shalimar bagh') || a.includes('burari') ||
-      a.includes('narela') || a.includes('shahbad') || a.includes('uttam nagar') ||
-      a.includes('vikaspuri') || a.includes('nangloi') || a.includes('palam') ||
-      a.includes('dabri') || a.includes('najafgarh') || a.includes('chattarpur') ||
-      a.includes('malviya nagar') || a.includes('lado sarai') || a.includes('madangir') ||
-      a.includes('south ex') || a.includes('south patel') || a.includes('rajendra place') ||
-      a.includes('motia khan') || a.includes('naraina') || a.includes('rajauri') ||
-      a.includes('punjabi bagh') || a.includes('azadpur') || a.includes('kamla nagar') ||
-      a.includes('welcome') || a.includes('khichripur') || a.includes('gharoli') ||
-      a.includes('vinod nagar') || a.includes('jasola') || a.includes('gk1') ||
-      a.includes('zamrudpur') || a.includes('greater kailash') || a.includes('santnagar') ||
-      a.includes('vaishali') || a.includes('nehru nagar') || a.includes('lohia nagar') ||
-      a.includes('jhilmil') || a.includes('chandar nagar') || a.includes('vasundhara'))
-    return 'Delhi NCR';
-  if (a.includes('kapashera') || a.includes('gurugram') || a.includes('ggn') ||
-      a.includes('gurgaon') || a.includes('sushant lok') || a.includes('dlf') ||
-      a.includes('sec-37') || a.includes('sec10a') || a.includes('wazirabad') ||
-      a.includes('kherki') || a.includes('rampura') || a.includes('sector 52') ||
-      a.includes('sector 46') || a.includes('sector 41') || a.includes('sector 43') ||
-      a.includes('sector 49') || a.includes('sector 55') || a.includes('sector 65') ||
-      a.includes('sector 68') || a.includes('sector 71') || a.includes('sector 72') ||
-      a.includes('iffco') || a.includes('mg road') || a.includes('huda city') ||
-      a.includes('samaspur') || a.includes('faridabad') || a.includes('ballabgarh') ||
-      a.includes('nit5') || a.includes('sec-16 faridabad'))
-    return 'Gurugram';
-  if (a.includes('noida') || a.includes('ekmurt') || a.includes('gaur city') ||
-      a.includes('khichripur') || a.includes('sec-10 noida') || a.includes('sec-63') ||
-      a.includes('wazidpur') || a.includes('zeta') || a.includes('gr noida') ||
-      a.includes('knowledge park') || a.includes('kowledge park') || a.includes('sec-150') ||
-      a.includes('sec-2 greater') || a.includes('noida ace') || a.includes('sec-141') ||
-      a.includes('sec-128') || a.includes('sec-104') || a.includes('sec-44') ||
-      a.includes('sec-58') || a.includes('sec-52') || a.includes('sec-18') ||
-      a.includes('sec-116') || a.includes('sec-122') || a.includes('nyay khand'))
-    return 'Noida';
-  if (a.includes('mallapur') || a.includes('yapral') || a.includes('new bowenpally') ||
-      a.includes('sanath nagar') || a.includes('tarnaka') || a.includes('malkajgiri') ||
-      a.includes('neredmet') || a.includes('hitec city') || a.includes('madhapur') ||
-      a.includes('nanakramguda') || a.includes('serilingampalle') || a.includes('tellapur') ||
-      a.includes('miyapur') || a.includes('bachupally') || a.includes('kompally') ||
-      a.includes('quthbullapur') || a.includes('bolarum') || a.includes('old alwal') ||
-      a.includes('paradise') || a.includes('banjara hills') || a.includes('borabanda') ||
-      a.includes('king koti') || a.includes('hyderguda') || a.includes('yosufguda') ||
-      a.includes('gudimalkapur') || a.includes('moghalpura') || a.includes('chandrayangutta') ||
-      a.includes('vanasthalipuram') || a.includes('kothapet') || a.includes('nagole') ||
-      a.includes('santosh nagar') || a.includes('arunodaya') || a.includes('shramika') ||
-      a.includes('dollar hills') || a.includes('kantha reddy') || a.includes('pjr layout') ||
-      a.includes('mayuri nagar') || a.includes('hanamkonda') || a.includes('kashibugga') ||
-      a.includes('warangal') || a.includes('gachibowli') || a.includes('kondapur') ||
-      a.includes('ameerpet') || a.includes('punjagutta') || a.includes('jntu') ||
-      a.includes('nallagandla') || a.includes('allwyn') || a.includes('venkata ramana') ||
-      a.includes('chanda nagar') || a.includes('pragati nagar') || a.includes('chintal') ||
-      a.includes('balkampet') || a.includes('bhavani nagar') || a.includes('kothaguda'))
-    return 'Hyderabad';
-  if (a.includes('wadala') || a.includes('govandi') || a.includes('powai') ||
-      a.includes('khar') || a.includes('goregaon') || a.includes('malad') ||
-      a.includes('borivali') || a.includes('dahisar') || a.includes('andheri') ||
-      a.includes('sakinaka') || a.includes('kurla') || a.includes('sion') ||
-      a.includes('mahim') || a.includes('sewri') || a.includes('marine lines') ||
-      a.includes('kandivali') || a.includes('akurli') || a.includes('mulund') ||
-      a.includes('thane') || a.includes('kanjurmarg'))
-    return 'Mumbai';
-  if (a.includes('vimanagar') || a.includes('amanora') || a.includes('pimple gurav') ||
-      a.includes('rahatani') || a.includes('bundgarden') || a.includes('bhawani peth') ||
-      a.includes('katraj') || a.includes('kondhwa') || a.includes('hadapsar') ||
-      a.includes('kharadi') || a.includes('wagholi') || a.includes('wakad') ||
-      a.includes('hinjewadi') || a.includes('balewadi') || a.includes('baner') ||
-      a.includes('aundh') || a.includes('warje') || a.includes('mukung') ||
-      a.includes('lohegaon') || a.includes('moshi') || a.includes('bhosari') ||
-      a.includes('ravet'))
-    return 'Pune';
-  if (a.includes('royapettah') || a.includes('adyar') || a.includes('perungudi') ||
-      a.includes('velachery') || a.includes('pallikaranai') || a.includes('madipakkam') ||
-      a.includes('saidapet') || a.includes('west mambalam') || a.includes('mugapair') ||
-      a.includes('alapakkam') || a.includes('ramapuram') || a.includes('virugambakkam') ||
-      a.includes('annanur') || a.includes('egmore') || a.includes('george town') ||
-      a.includes('aminjikarai') || a.includes('shenoy nagar') || a.includes('padi') ||
-      a.includes('madhavaram') || a.includes('chitlapakkam') || a.includes('selaiyur') ||
-      a.includes('nagalkeni') || a.includes('chrompet') || a.includes('thoriapakkam') ||
-      a.includes('noothenchery'))
-    return 'Chennai';
-  if (a.includes('newtown') || a.includes('mahishbathan'))
-    return 'Kolkata';
-  if (a.includes('palluruthy') || a.includes('eroor') || a.includes('elamakkara') ||
-      a.includes('puthiyara') || a.includes('poojapura') || a.includes('kulathoor') ||
-      a.includes('kuravankonam') || a.includes('chevayoor'))
-    return 'Kochi';
-  if (a.includes('adarsh nagar') || a.includes('22 godown') || a.includes('subhash nagar') ||
-      a.includes('amer road') || a.includes('riddhi siddhi') || a.includes('jhotwara') ||
-      a.includes('vidhyadhar') || a.includes('vaishali nagar') || a.includes('kalyanpura') ||
-      a.includes('malviya nagar (bts)') || a.includes('nirman nagar') || a.includes('chitrakoot') ||
-      a.includes('govindpura') || a.includes('jagatpura') || a.includes('paladi meena') ||
-      a.includes('rangoli garden'))
-    return 'Jaipur';
-  if (a.includes('vip road') || a.includes('peer muchalla') || a.includes('industrial area 1') ||
-      a.includes('phase 7') || a.includes('panchkula') || a.includes('sector 9') ||
-      a.includes('phase 2, sector 54'))
-    return 'Chandigarh';
-  if (a.includes('sonipat'))
-    return 'Sonipat';
-  if (a.includes('tajganj') || a.includes('rambagh') || a.includes('awas vikas') ||
-      a.includes('shahganj'))
-    return 'Agra';
-  if (a.includes('auto nagar') || a.includes('governorpet') || a.includes('bhavanipuram'))
-    return 'Vijayawada';
+  const checks = [
+    ['Bangalore', ['koramangala','hsr','whitefield','yelahanka','peenya','btm','bannerghata','marathalli','hoodi','thanisandra','yeshwanthpur','domlur','jayanagar','rajajinagar','kalkere','electronics city','bommanahalli','belathur','varthur','chikkabellandur','nagasandra','padmanabhanagar','seshadripuram','sanjay nagar','banaswadi','frazer town','cox town','kalyan nagar','rr nagar','mallathalli','gottigere','banashankari','uttarahalli','kanakapura','jigani','bommasandra','doddanekkundi','anand nagar','nagavara','budigere','devanahalli','bagalur','akshaya nagar','mailsandra','hosa road','singasandra','e-city','gopalan mall','mahadevapura','kr puram','kodigehalli','nagarbhavi','heganahalli','azad nagar','adugodi','doddanagamangala','sompura','dommasandra','manipal county','jp nagar','indiranagar','hebbal']],
+    ['Delhi NCR', ['rohini','dwarka','janakpuri','hari nagar','paschim vihar','pitampura','moti nagar','karol bagh','tis hazari','connaught','vasant vihar','vasant kunj','sarita vihar','laxmi nagar','geeta colony','jhilmil','mandoli','brij puri','jahangirpuri','shalimar bagh','burari','narela','shahbad','uttam nagar','vikaspuri','nangloi','palam','dabri','najafgarh','chattarpur','malviya nagar','lado sarai','madangir','south ex','south patel','rajendra place','motia khan','naraina','rajauri','punjabi bagh','azadpur','kamla nagar','welcome','khichripur','gharoli','vinod nagar','jasola','gk1','zamrudpur','greater kailash','santnagar','vaishali','nehru nagar','lohia nagar','chandar nagar','vasundhara','rani bagh','nyay khand']],
+    ['Gurugram', ['kapashera','gurugram','ggn','gurgaon','sushant lok','dlf','sec-37','sec10a','wazirabad','kherki','rampura','sector 52','sector 46','sector 41','sector 43','sector 49','sector 55','sector 65','sector 68','sector 71','sector 72','iffco','mg road','huda city','samaspur','faridabad','ballabgarh','nit5','sec-16 faridabad','sec-14 gurugram','sec-23, gurugram','ashok vihar']],
+    ['Noida', ['noida','ekmurt','gaur city','sec-10 noida','sec-63','wazidpur','zeta','gr noida','knowledge park','kowledge park','sec-150','sec-2 greater','noida ace','sec-141','sec-128','sec-104','sec-44','sec-58','sec-52','sec-18','sec-116','sec-122','nyay khand','sec-2 greater noida']],
+    ['Hyderabad', ['mallapur','yapral','new bowenpally','sanath nagar','tarnaka','malkajgiri','neredmet','hitec city','madhapur','nanakramguda','serilingampalle','tellapur','miyapur','bachupally','kompally','quthbullapur','bolarum','old alwal','paradise','banjara hills','borabanda','king koti','hyderguda','yosufguda','gudimalkapur','moghalpura','chandrayangutta','vanasthalipuram','kothapet','nagole','santosh nagar','arunodaya','dollar hills','kantha reddy','pjr layout','mayuri nagar','hanamkonda','kashibugga','gachibowli','kondapur','ameerpet','punjagutta','jntu','nallagandla','allwyn','venkata ramana','chanda nagar','pragati nagar','chintal','balkampet','bhavani nagar','kothaguda']],
+    ['Mumbai', ['wadala','govandi','powai','khar','goregaon','malad','borivali','dahisar','andheri','sakinaka','kurla','sion','mahim','sewri','marine lines','kandivali','akurli','mulund','thane','kanjurmarg']],
+    ['Pune', ['vimanagar','amanora','pimple gurav','rahatani','bundgarden','bhawani peth','katraj','kondhwa','hadapsar','kharadi','wagholi','wakad','hinjewadi','balewadi','baner','aundh','warje','mukung','lohegaon','moshi','bhosari','ravet']],
+    ['Chennai', ['royapettah','adyar','perungudi','velachery','pallikaranai','madipakkam','saidapet','west mambalam','mugapair','alapakkam','ramapuram','virugambakkam','annanur','egmore','george town','aminjikarai','shenoy nagar','padi','madhavaram','chitlapakkam','selaiyur','nagalkeni','chrompet','thoriapakkam','noothenchery']],
+    ['Kolkata', ['newtown','mahishbathan']],
+    ['Kochi', ['palluruthy','eroor','elamakkara','puthiyara','poojapura','kulathoor','kuravankonam','chevayoor']],
+    ['Jaipur', ['adarsh nagar','22 godown','subhash nagar','amer road','riddhi siddhi','jhotwara','vidhyadhar','vaishali nagar','kalyanpura','malviya nagar (bts)','nirman nagar','chitrakoot','govindpura','jagatpura','paladi meena','rangoli garden']],
+    ['Chandigarh', ['vip road','peer muchalla','industrial area 1','phase 7','panchkula','sector 9','phase 2, sector 54']],
+    ['Sonipat', ['sonipat']],
+    ['Agra', ['tajganj','rambagh','awas vikas','shahganj']],
+    ['Vijayawada', ['auto nagar','governorpet','bhavanipuram']]
+  ];
+  for (const [city, keywords] of checks) {
+    if (keywords.some(k => a.includes(k))) return city;
+  }
   return 'Other';
 }
 
-const map = L.map('map').setView([20.5937, 78.9629], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors',
-  maxZoom: 18
+// ── MAP INIT ───────────────────────────────────────────────────
+const map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 5);
+
+// Modern clean map tiles (CartoDB Positron)
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
 }).addTo(map);
 
-let allStations = [];
-let markers = [];
-let citySet = new Set();
+// Zoom control bottom-right
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+// ── STATE ──────────────────────────────────────────────────────
+let allStations = [];
+let markers     = [];
+let citySet     = new Set();
+let userMarker  = null;
+let userAccCircle = null;
+let userLat = null;
+let userLng = null;
+let nearbyMode  = false;
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── HAVERSINE DISTANCE (km) ────────────────────────────────────
+function haversine(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+}
+
+// ── RENDER MARKERS ─────────────────────────────────────────────
 function renderMarkers(stations) {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
   stations.forEach(s => {
-    const m = L.marker([s.lat, s.lng], { icon: makeIcon(s.vendor) });
-    const tagClass = s.vendor === 'Indofast' ? 'tag-indofast'
-                   : s.vendor === 'Yuma' ? 'tag-yuma'
-                   : s.vendor === 'Battery Smart' ? 'tag-battery'
-                   : 'tag-emo';
-    const distText = s.dist_km ? `<p>📍 ${s.dist_km} km from dark store</p>` : '';
+    const m = L.marker([s.lat, s.lng], { icon: makeIcon(s.vendor, false) });
+    const tagColor = COLORS[s.vendor] || '#555';
+    const fromYou  = (userLat !== null)
+      ? `<p>📍 <b>${haversine(userLat, userLng, s.lat, s.lng)} km</b> from you</p>`
+      : '';
+    const distText = s.dist_km ? `<p>🏪 ${s.dist_km} km from dark store</p>` : '';
     m.bindPopup(`
       <div class="popup-box">
-        <h3>⚡ ${s.area}</h3>
-        <span class="tag ${tagClass}">${s.vendor}</span>
+        <h3>${s.area}</h3>
+        <span class="tag" style="background:${tagColor}22;color:${tagColor};border:1px solid ${tagColor}44">${s.vendor}</span>
+        ${fromYou}
         ${distText}
         <a class="dir-btn"
            href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}"
            target="_blank">🗺️ Get Directions</a>
       </div>
-    `, { maxWidth: 240 });
+    `, { maxWidth: 250 });
     m.addTo(map);
     markers.push(m);
   });
   document.getElementById('count-badge').textContent = `${stations.length} stations`;
 }
 
+// ── FILTERS ────────────────────────────────────────────────────
 function applyFilters() {
+  nearbyMode = false;
+  document.getElementById('nearby-badge').style.display = 'none';
   const vendor = document.getElementById('vendor-filter').value;
   const city   = document.getElementById('city-filter').value;
   let filtered = allStations;
@@ -295,9 +246,84 @@ function applyFilters() {
   renderMarkers(filtered);
   if (city && CITY_CENTERS[city]) {
     map.setView(CITY_CENTERS[city], 12);
+  } else if (!city && !vendor) {
+    map.setView([20.5937, 78.9629], 5);
   }
 }
 
+// ── CURRENT LOCATION ───────────────────────────────────────────
+function findMyLocation() {
+  const btn = document.getElementById('locBtn');
+  if (!navigator.geolocation) {
+    showToast('Location not supported on this device');
+    return;
+  }
+  btn.textContent = '🔄';
+  btn.classList.add('loading');
+  showToast('Finding your location...', 3000);
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      btn.textContent = '📍';
+      btn.classList.remove('loading');
+
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      const acc = pos.coords.accuracy;
+
+      // Remove old user layers
+      if (userMarker)    map.removeLayer(userMarker);
+      if (userAccCircle) map.removeLayer(userAccCircle);
+
+      // Accuracy circle (light blue, like Google Maps)
+      userAccCircle = L.circle([userLat, userLng], {
+        radius: acc,
+        color: '#1a73e8',
+        fillColor: '#1a73e8',
+        fillOpacity: 0.12,
+        weight: 1.5
+      }).addTo(map);
+
+      // Persistent blue dot — stays on top of all markers
+      userMarker = L.circleMarker([userLat, userLng], {
+        radius: 10,
+        fillColor: '#1a73e8',
+        color: '#fff',
+        weight: 3,
+        fillOpacity: 1,
+        pane: 'markerPane'
+      }).addTo(map).bindPopup(`<b>📍 You are here</b><br><span style="font-size:11px;color:#888">Accuracy: ±${Math.round(acc)}m</span>`);
+
+      // Find nearest 30 stations using real haversine distance
+      const vendor = document.getElementById('vendor-filter').value;
+      let pool = allStations;
+      if (vendor) pool = pool.filter(s => s.vendor === vendor);
+
+      const withDist = pool.map(s => ({
+        ...s,
+        _d: haversine(userLat, userLng, s.lat, s.lng)
+      })).sort((a, b) => a._d - b._d).slice(0, 30);
+
+      renderMarkers(withDist);
+      // Re-add user layers on top after renderMarkers clears markers array
+      userAccCircle.addTo(map);
+      userMarker.addTo(map);
+      nearbyMode = true;
+      document.getElementById('nearby-badge').style.display = 'inline-block';
+      map.setView([userLat, userLng], 14);
+      showToast(`Showing ${withDist.length} nearest stations`);
+    },
+    err => {
+      btn.textContent = '📍';
+      btn.classList.remove('loading');
+      const msgs = {1:'Location permission denied', 2:'Location unavailable', 3:'Location request timed out'};
+      showToast(msgs[err.code] || 'Could not get location');
+    },
+    { timeout: 10000, maximumAge: 60000 }
+  );
+}
+
+// ── LOAD DATA ──────────────────────────────────────────────────
 fetch('/swap-stations')
   .then(r => r.json())
   .then(data => {
@@ -312,22 +338,22 @@ fetch('/swap-stations')
       citySelect.appendChild(opt);
     });
 
-    // Auto-apply URL params (vendor + city)
-    const params = new URLSearchParams(window.location.search);
+    // Auto-apply URL params
+    const params  = new URLSearchParams(window.location.search);
     const pVendor = params.get('vendor') || '';
     const pCity   = params.get('city')   || '';
     if (pVendor) document.getElementById('vendor-filter').value = pVendor;
     if (pCity)   document.getElementById('city-filter').value   = pCity;
 
     renderMarkers(allStations);
-    applyFilters();
+    if (pVendor || pCity) applyFilters();
 
     document.getElementById('vendor-filter').addEventListener('change', applyFilters);
     document.getElementById('city-filter').addEventListener('change', applyFilters);
   })
-  .catch(e => {
+  .catch(() => {
     document.getElementById('count-badge').textContent = 'Error loading';
-    console.error(e);
+    showToast('Failed to load stations');
   });
 </script>
 </body>
