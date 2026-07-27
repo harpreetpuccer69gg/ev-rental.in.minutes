@@ -430,27 +430,66 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#fff;}
 
 <div class="main">
 
-  <div class="card">
-    <div class="card-title" id="cityLabel">1. Select City</div>
-    <select class="city-sel" id="citySelect" onchange="checkReady()">
-      <option value="">-- Select city --</option>
-    </select>
-    <p class="hint" id="cityHint">Choose your delivery city to see available EV rentals.</p>
+  <!-- TAB BAR -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;background:#fff;border-radius:14px;padding:6px;box-shadow:0 1px 6px rgba(0,0,0,.08)">
+    <button id="tabEV" onclick="switchTab('ev')" style="flex:1;padding:10px 6px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#002d62;color:#fff;transition:all .2s">🛵 Find EVs</button>
+    <button id="tabSwap" onclick="switchTab('swap')" style="flex:1;padding:10px 6px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:#f5f5f5;color:#e65100;transition:all .2s">⚡ Swap Stations</button>
   </div>
 
-  <div class="card">
-    <div class="card-title" id="budgetLabel">2. Weekly Budget</div>
-    <div class="budget-grid">
-      <button class="bchip" data-budget="1" onclick="setBudget(this,'1')"><span class="bchip-amt">₹1000</span><span class="bchip-lbl" id="b1">Below ₹1000</span></button>
-      <button class="bchip" data-budget="2" onclick="setBudget(this,'2')"><span class="bchip-amt">₹1000–1500</span><span class="bchip-lbl" id="b2">Per week</span></button>
-      <button class="bchip" data-budget="3" onclick="setBudget(this,'3')"><span class="bchip-amt">₹1500–2000</span><span class="bchip-lbl" id="b3">Per week</span></button>
-      <button class="bchip" data-budget="4" onclick="setBudget(this,'4')"><span class="bchip-amt">₹2000+</span><span class="bchip-lbl" id="b4">Above ₹2000</span></button>
+  <!-- EV FINDER SECTION -->
+  <div id="evFinderSection">
+    <div class="card">
+      <div class="card-title" id="cityLabel">1. Select City</div>
+      <select class="city-sel" id="citySelect" onchange="checkReady()">
+        <option value="">-- Select city --</option>
+      </select>
+      <p class="hint" id="cityHint">Choose your delivery city to see available EV rentals.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" id="budgetLabel">2. Weekly Budget</div>
+      <div class="budget-grid">
+        <button class="bchip" data-budget="1" onclick="setBudget(this,'1')"><span class="bchip-amt">₹1000</span><span class="bchip-lbl" id="b1">Below ₹1000</span></button>
+        <button class="bchip" data-budget="2" onclick="setBudget(this,'2')"><span class="bchip-amt">₹1000–1500</span><span class="bchip-lbl" id="b2">Per week</span></button>
+        <button class="bchip" data-budget="3" onclick="setBudget(this,'3')"><span class="bchip-amt">₹1500–2000</span><span class="bchip-lbl" id="b3">Per week</span></button>
+        <button class="bchip" data-budget="4" onclick="setBudget(this,'4')"><span class="bchip-amt">₹2000+</span><span class="bchip-lbl" id="b4">Above ₹2000</span></button>
+      </div>
+    </div>
+  </div>
+  <!-- END EV FINDER SECTION -->
+
+  <div id="resultsArea"></div>
+
+  <!-- SWAP STATIONS TAB -->
+  <div id="swapStationsTab" style="display:none;padding:0 0 24px 0">
+    <div style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-radius:16px;padding:18px 16px;margin-bottom:14px;border:1.5px solid #ffcc80">
+      <div style="font-size:16px;font-weight:800;color:#e65100;margin-bottom:4px">⚡ Battery Swap Stations</div>
+      <div style="font-size:13px;color:#bf360c;margin-bottom:14px">Find swap stations near you across all networks — Indofast, Yuma, Battery Smart &amp; EMO</div>
+      <a href="/swap-map" target="_blank" style="display:block;width:100%;padding:13px;background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box">🗺️ Open Swap Stations Map</a>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <a href="/swap-map?vendor=Indofast" target="_blank" style="background:#fff;border:1.5px solid #ffccbc;border-radius:14px;padding:14px 12px;text-decoration:none;text-align:center">
+        <div style="font-size:22px;margin-bottom:4px">🔶</div>
+        <div style="font-size:13px;font-weight:700;color:#e65100">Indofast</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">Sun Mobility network</div>
+      </a>
+      <a href="/swap-map?vendor=Yuma" target="_blank" style="background:#fff;border:1.5px solid #bbdefb;border-radius:14px;padding:14px 12px;text-decoration:none;text-align:center">
+        <div style="font-size:22px;margin-bottom:4px">🔵</div>
+        <div style="font-size:13px;font-weight:700;color:#1565c0">Yuma</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">Yulu network</div>
+      </a>
+      <a href="/swap-map?vendor=Battery+Smart" target="_blank" style="background:#fff;border:1.5px solid #e1bee7;border-radius:14px;padding:14px 12px;text-decoration:none;text-align:center">
+        <div style="font-size:22px;margin-bottom:4px">🟣</div>
+        <div style="font-size:13px;font-weight:700;color:#6a1b9a">Battery Smart</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">Eveez / Baaz network</div>
+      </a>
+      <a href="/swap-map?vendor=EMO" target="_blank" style="background:#fff;border:1.5px solid #c8e6c9;border-radius:14px;padding:14px 12px;text-decoration:none;text-align:center">
+        <div style="font-size:22px;margin-bottom:4px">🟢</div>
+        <div style="font-size:13px;font-weight:700;color:#2e7d32">EMO</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">EMO network</div>
+      </a>
     </div>
   </div>
 
-
-
-  <div id="resultsArea"></div>
 </div>
 
 <!-- DETAIL PAGE -->
@@ -479,7 +518,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#fff;}
       <div class="detail-item"><div class="detail-item-label">Security Deposit</div><div class="detail-item-val" id="detailDeposit"></div></div>
       <div class="detail-item"><div class="detail-item-label">Refundable</div><div class="detail-item-val" id="detailRefund"></div></div>
     </div>
-    <a id="detailSwapBtn" href="/swap-map" target="_blank" style="display:none;width:100%;margin-bottom:10px;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #e65100;border-radius:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;">⚡ View Nearby Swap Stations</a>
+    <a id="detailSwapBtn" href="/swap-map" target="_blank" style="display:none;width:100%;margin-bottom:10px;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #e65100;border-radius:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;">⚡ View All Swap Stations Near You</a>
     <button class="detail-book-btn" onclick="openDetailPopup()">Confirm &amp; Request</button>
   </div>
 </div>
@@ -644,6 +683,17 @@ window.addEventListener('load',()=>{
     setTimeout(()=>{isTouching=false;},600);
   },{passive:true});
 });
+
+function switchTab(tab){
+  const isEV = tab==='ev';
+  document.getElementById('evFinderSection').style.display = isEV?'':'none';
+  document.getElementById('resultsArea').style.display     = isEV?'':'none';
+  document.getElementById('swapStationsTab').style.display = isEV?'none':'';
+  document.getElementById('tabEV').style.background   = isEV?'#002d62':'#f5f5f5';
+  document.getElementById('tabEV').style.color        = isEV?'#fff':'#002d62';
+  document.getElementById('tabSwap').style.background = isEV?'#f5f5f5':'#e65100';
+  document.getElementById('tabSwap').style.color      = isEV?'#e65100':'#fff';
+}
 
 function closeIntro(){
   const city=document.getElementById('introCity').value;
@@ -945,16 +995,12 @@ function openDetail(v){
   document.getElementById('detailCharge').innerText=v['Charging/Swap']||'N/A';
   document.getElementById('detailDeposit').innerText=v['Security Deposit']||'NIL';
   document.getElementById('detailRefund').innerText=v['Refundable Deposit']||'NIL';
-  // Swap stations button — show only for swap vendors
+  // Swap stations button — show for swap vendors, general link with city only
   var swapBtn=document.getElementById('detailSwapBtn');
   var isSwap=(v['Charging/Swap']||'').toLowerCase().includes('swap')||(v['Battery Type']||'').toLowerCase().includes('swap')||(v['Battery Type']||'').toLowerCase().includes('yuma')||(v['Battery Type']||'').toLowerCase().includes('indofast')||(v['Battery Type']||'').toLowerCase().includes('sun mobility');
   if(isSwap){
-    var swapVendorMap={'yulu':'Yuma','bounce':'Indofast','volt up':'Indofast','bykemania':'Indofast','bijliride':'Indofast','eveez':'Battery Smart','speedz':'Battery Smart','blive':'Indofast','steedgo':'Indofast','kinetic green':'Indofast','baaz':'Battery Smart','evify':'Indofast','yugo':'Indofast','zeway':'Indofast','e-went':'Battery Smart','emo':'EMO'};
-    var vkey=(v.Vendor||'').toLowerCase();
-    var swapVendor=swapVendorMap[vkey]||'';
     var city=encodeURIComponent(v.City||'');
-    var url='/swap-map'+(swapVendor||city?'?':'')+(swapVendor?'vendor='+encodeURIComponent(swapVendor):'')+(swapVendor&&city?'&':'')+(city?'city='+city:'');
-    swapBtn.href=url;
+    swapBtn.href='/swap-map'+(city?'?city='+city:'');
     swapBtn.style.display='block';
   } else {
     swapBtn.style.display='none';
