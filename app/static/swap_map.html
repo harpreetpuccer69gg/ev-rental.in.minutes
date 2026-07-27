@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Swap Stations Map – EV Assist</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:#f4f6f9;color:#222}
+  header{background:#1a1a2e;color:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px}
+  header img{height:32px}
+  header h1{font-size:17px;font-weight:700}
+  header span{font-size:12px;opacity:.7;margin-left:auto}
+  .filters{background:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;border-bottom:1px solid #e0e0e0;align-items:center}
+  .filters select{padding:8px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;background:#fff;cursor:pointer}
+  .filters select:focus{outline:none;border-color:#4CAF50}
+  .badge{background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600}
+  #map{height:calc(100vh - 120px);width:100%}
+  .popup-box{min-width:200px}
+  .popup-box h3{font-size:14px;font-weight:700;margin-bottom:6px;color:#1a1a2e}
+  .popup-box p{font-size:12px;color:#555;margin-bottom:4px}
+  .popup-box .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-bottom:8px}
+  .tag-indofast{background:#fff3e0;color:#e65100}
+  .tag-yuma{background:#e3f2fd;color:#1565c0}
+  .tag-battery{background:#f3e5f5;color:#6a1b9a}
+  .tag-emo{background:#e8f5e9;color:#2e7d32}
+  .dir-btn{display:block;width:100%;padding:8px;background:#4CAF50;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none;margin-top:4px}
+  .dir-btn:hover{background:#388e3c}
+  .legend{position:absolute;bottom:30px;left:10px;z-index:1000;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:12px}
+  .legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .legend-dot{width:12px;height:12px;border-radius:50%}
+  @media(max-width:500px){
+    .filters{gap:8px}
+    .filters select{font-size:13px;padding:7px 10px}
+    #map{height:calc(100vh - 140px)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="/static/images/logo.png" alt="EV Assist" onerror="this.style.display='none'"/>
+  <h1>⚡ Swap Stations Map</h1>
+  <span id="count-badge" class="badge">Loading...</span>
+</header>
+
+<div class="filters">
+  <select id="vendor-filter">
+    <option value="">All Vendors</option>
+    <option value="Indofast">Indofast</option>
+    <option value="Yuma">Yuma</option>
+    <option value="Battery Smart">Battery Smart</option>
+    <option value="EMO">EMO</option>
+  </select>
+  <select id="city-filter">
+    <option value="">All Cities</option>
+  </select>
+  <a href="/" style="margin-left:auto;font-size:13px;color:#4CAF50;text-decoration:none;font-weight:600">← Back to App</a>
+</div>
+
+<div id="map"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#e65100"></div> Indofast</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1565c0"></div> Yuma</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6a1b9a"></div> Battery Smart</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2e7d32"></div> EMO</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const COLORS = {
+  'Indofast':      '#e65100',
+  'Yuma':          '#1565c0',
+  'Battery Smart': '#6a1b9a',
+  'EMO':           '#2e7d32'
+};
+
+function markerColor(vendor) {
+  return COLORS[vendor] || '#555';
+}
+
+function makeIcon(vendor) {
+  const c = markerColor(vendor);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30">
+    <path d="M11 0C4.9 0 0 4.9 0 11c0 8.3 11 19 11 19s11-10.7 11-19C22 4.9 17.1 0 11 0z" fill="${c}"/>
+    <circle cx="11" cy="11" r="5" fill="#fff"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [22, 30],
+    iconAnchor: [11, 30],
+    popupAnchor: [0, -30]
+  });
+}
+
+// City → approximate center for auto-zoom
+const CITY_CENTERS = {
+  'Bangalore':  [12.97, 77.59],
+  'Delhi NCR':  [28.62, 77.21],
+  'Hyderabad':  [17.44, 78.44],
+  'Mumbai':     [19.08, 72.88],
+  'Pune':       [18.52, 73.86],
+  'Chennai':    [13.04, 80.24],
+  'Kolkata':    [22.57, 88.36],
+  'Jaipur':     [26.91, 75.79],
+  'Chandigarh': [30.73, 76.78],
+  'Kochi':      [9.93,  76.27],
+  'Lucknow':    [26.85, 80.95],
+  'Noida':      [28.54, 77.39],
+  'Gurugram':   [28.46, 77.03]
+};
+
+// Detect city from area name
+function detectCity(area) {
+  const a = area.toLowerCase();
+  if (a.includes('koramangala') || a.includes('hsr') || a.includes('whitefield') ||
+      a.includes('yelahanka') || a.includes('peenya') || a.includes('btm') ||
+      a.includes('bannerghata') || a.includes('marathalli') || a.includes('hoodi') ||
+      a.includes('thanisandra') || a.includes('yeshwanthpur') || a.includes('domlur') ||
+      a.includes('jayanagar') || a.includes('rajajinagar') || a.includes('kalkere') ||
+      a.includes('electronics city') || a.includes('bommanahalli') || a.includes('belathur') ||
+      a.includes('varthur') || a.includes('chikkabellandur') || a.includes('nagasandra') ||
+      a.includes('padmanabhanagar') || a.includes('seshadripuram') || a.includes('sanjay nagar') ||
+      a.includes('banaswadi') || a.includes('frazer town') || a.includes('cox town') ||
+      a.includes('kalyan nagar') || a.includes('rr nagar') || a.includes('mallathalli') ||
+      a.includes('gottigere') || a.includes('banashankari') || a.includes('uttarahalli') ||
+      a.includes('kanakapura') || a.includes('jigani') || a.includes('bommasandra') ||
+      a.includes('doddanekkundi') || a.includes('anand nagar') || a.includes('nagavara') ||
+      a.includes('budigere') || a.includes('devanahalli') || a.includes('bagalur') ||
+      a.includes('akshaya nagar') || a.includes('mailsandra') || a.includes('hosa road') ||
+      a.includes('singasandra') || a.includes('e-city') || a.includes('ecity') ||
+      a.includes('manipal county') || a.includes('gopalan mall') || a.includes('mahadevapura') ||
+      a.includes('kr puram') || a.includes('kodigehalli') || a.includes('nagarbhavi') ||
+      a.includes('heganahalli') || a.includes('azad nagar') || a.includes('adugodi') ||
+      a.includes('doddanagamangala') || a.includes('sompura') || a.includes('dommasandra'))
+    return 'Bangalore';
+  if (a.includes('rohini') || a.includes('dwarka') || a.includes('janakpuri') ||
+      a.includes('hari nagar') || a.includes('paschim vihar') || a.includes('pitampura') ||
+      a.includes('moti nagar') || a.includes('karol bagh') || a.includes('tis hazari') ||
+      a.includes('connaught') || a.includes('vasant vihar') || a.includes('vasant kunj') ||
+      a.includes('sarita vihar') || a.includes('laxmi nagar') || a.includes('geeta colony') ||
+      a.includes('jhilmil') || a.includes('mandoli') || a.includes('brij puri') ||
+      a.includes('jahangirpuri') || a.includes('shalimar bagh') || a.includes('burari') ||
+      a.includes('narela') || a.includes('shahbad') || a.includes('uttam nagar') ||
+      a.includes('vikaspuri') || a.includes('nangloi') || a.includes('palam') ||
+      a.includes('dabri') || a.includes('najafgarh') || a.includes('chattarpur') ||
+      a.includes('malviya nagar') || a.includes('lado sarai') || a.includes('madangir') ||
+      a.includes('south ex') || a.includes('south patel') || a.includes('rajendra place') ||
+      a.includes('motia khan') || a.includes('naraina') || a.includes('rajauri') ||
+      a.includes('punjabi bagh') || a.includes('azadpur') || a.includes('kamla nagar') ||
+      a.includes('welcome') || a.includes('khichripur') || a.includes('gharoli') ||
+      a.includes('vinod nagar') || a.includes('jasola') || a.includes('gk1') ||
+      a.includes('zamrudpur') || a.includes('greater kailash') || a.includes('santnagar') ||
+      a.includes('vaishali') || a.includes('nehru nagar') || a.includes('lohia nagar') ||
+      a.includes('jhilmil') || a.includes('chandar nagar') || a.includes('vasundhara'))
+    return 'Delhi NCR';
+  if (a.includes('kapashera') || a.includes('gurugram') || a.includes('ggn') ||
+      a.includes('gurgaon') || a.includes('sushant lok') || a.includes('dlf') ||
+      a.includes('sec-37') || a.includes('sec10a') || a.includes('wazirabad') ||
+      a.includes('kherki') || a.includes('rampura') || a.includes('sector 52') ||
+      a.includes('sector 46') || a.includes('sector 41') || a.includes('sector 43') ||
+      a.includes('sector 49') || a.includes('sector 55') || a.includes('sector 65') ||
+      a.includes('sector 68') || a.includes('sector 71') || a.includes('sector 72') ||
+      a.includes('iffco') || a.includes('mg road') || a.includes('huda city') ||
+      a.includes('samaspur') || a.includes('faridabad') || a.includes('ballabgarh') ||
+      a.includes('nit5') || a.includes('sec-16 faridabad'))
+    return 'Gurugram';
+  if (a.includes('noida') || a.includes('ekmurt') || a.includes('gaur city') ||
+      a.includes('khichripur') || a.includes('sec-10 noida') || a.includes('sec-63') ||
+      a.includes('wazidpur') || a.includes('zeta') || a.includes('gr noida') ||
+      a.includes('knowledge park') || a.includes('kowledge park') || a.includes('sec-150') ||
+      a.includes('sec-2 greater') || a.includes('noida ace') || a.includes('sec-141') ||
+      a.includes('sec-128') || a.includes('sec-104') || a.includes('sec-44') ||
+      a.includes('sec-58') || a.includes('sec-52') || a.includes('sec-18') ||
+      a.includes('sec-116') || a.includes('sec-122') || a.includes('nyay khand'))
+    return 'Noida';
+  if (a.includes('mallapur') || a.includes('yapral') || a.includes('new bowenpally') ||
+      a.includes('sanath nagar') || a.includes('tarnaka') || a.includes('malkajgiri') ||
+      a.includes('neredmet') || a.includes('hitec city') || a.includes('madhapur') ||
+      a.includes('nanakramguda') || a.includes('serilingampalle') || a.includes('tellapur') ||
+      a.includes('miyapur') || a.includes('bachupally') || a.includes('kompally') ||
+      a.includes('quthbullapur') || a.includes('bolarum') || a.includes('old alwal') ||
+      a.includes('paradise') || a.includes('banjara hills') || a.includes('borabanda') ||
+      a.includes('king koti') || a.includes('hyderguda') || a.includes('yosufguda') ||
+      a.includes('gudimalkapur') || a.includes('moghalpura') || a.includes('chandrayangutta') ||
+      a.includes('vanasthalipuram') || a.includes('kothapet') || a.includes('nagole') ||
+      a.includes('santosh nagar') || a.includes('arunodaya') || a.includes('shramika') ||
+      a.includes('dollar hills') || a.includes('kantha reddy') || a.includes('pjr layout') ||
+      a.includes('mayuri nagar') || a.includes('hanamkonda') || a.includes('kashibugga') ||
+      a.includes('warangal') || a.includes('gachibowli') || a.includes('kondapur') ||
+      a.includes('ameerpet') || a.includes('punjagutta') || a.includes('jntu') ||
+      a.includes('nallagandla') || a.includes('allwyn') || a.includes('venkata ramana') ||
+      a.includes('chanda nagar') || a.includes('pragati nagar') || a.includes('chintal') ||
+      a.includes('balkampet') || a.includes('bhavani nagar') || a.includes('kothaguda'))
+    return 'Hyderabad';
+  if (a.includes('wadala') || a.includes('govandi') || a.includes('powai') ||
+      a.includes('khar') || a.includes('goregaon') || a.includes('malad') ||
+      a.includes('borivali') || a.includes('dahisar') || a.includes('andheri') ||
+      a.includes('sakinaka') || a.includes('kurla') || a.includes('sion') ||
+      a.includes('mahim') || a.includes('sewri') || a.includes('marine lines') ||
+      a.includes('kandivali') || a.includes('akurli') || a.includes('mulund') ||
+      a.includes('thane') || a.includes('kanjurmarg'))
+    return 'Mumbai';
+  if (a.includes('vimanagar') || a.includes('amanora') || a.includes('pimple gurav') ||
+      a.includes('rahatani') || a.includes('bundgarden') || a.includes('bhawani peth') ||
+      a.includes('katraj') || a.includes('kondhwa') || a.includes('hadapsar') ||
+      a.includes('kharadi') || a.includes('wagholi') || a.includes('wakad') ||
+      a.includes('hinjewadi') || a.includes('balewadi') || a.includes('baner') ||
+      a.includes('aundh') || a.includes('warje') || a.includes('mukung') ||
+      a.includes('lohegaon') || a.includes('moshi') || a.includes('bhosari') ||
+      a.includes('ravet'))
+    return 'Pune';
+  if (a.includes('royapettah') || a.includes('adyar') || a.includes('perungudi') ||
+      a.includes('velachery') || a.includes('pallikaranai') || a.includes('madipakkam') ||
+      a.includes('saidapet') || a.includes('west mambalam') || a.includes('mugapair') ||
+      a.includes('alapakkam') || a.includes('ramapuram') || a.includes('virugambakkam') ||
+      a.includes('annanur') || a.includes('egmore') || a.includes('george town') ||
+      a.includes('aminjikarai') || a.includes('shenoy nagar') || a.includes('padi') ||
+      a.includes('madhavaram') || a.includes('chitlapakkam') || a.includes('selaiyur') ||
+      a.includes('nagalkeni') || a.includes('chrompet') || a.includes('thoriapakkam') ||
+      a.includes('noothenchery'))
+    return 'Chennai';
+  if (a.includes('newtown') || a.includes('mahishbathan'))
+    return 'Kolkata';
+  if (a.includes('palluruthy') || a.includes('eroor') || a.includes('elamakkara') ||
+      a.includes('puthiyara') || a.includes('poojapura') || a.includes('kulathoor') ||
+      a.includes('kuravankonam') || a.includes('chevayoor'))
+    return 'Kochi';
+  if (a.includes('adarsh nagar') || a.includes('22 godown') || a.includes('subhash nagar') ||
+      a.includes('amer road') || a.includes('riddhi siddhi') || a.includes('jhotwara') ||
+      a.includes('vidhyadhar') || a.includes('vaishali nagar') || a.includes('kalyanpura') ||
+      a.includes('malviya nagar (bts)') || a.includes('nirman nagar') || a.includes('chitrakoot') ||
+      a.includes('govindpura') || a.includes('jagatpura') || a.includes('paladi meena') ||
+      a.includes('rangoli garden'))
+    return 'Jaipur';
+  if (a.includes('vip road') || a.includes('peer muchalla') || a.includes('industrial area 1') ||
+      a.includes('phase 7') || a.includes('panchkula') || a.includes('sector 9') ||
+      a.includes('phase 2, sector 54'))
+    return 'Chandigarh';
+  if (a.includes('sonipat'))
+    return 'Sonipat';
+  if (a.includes('tajganj') || a.includes('rambagh') || a.includes('awas vikas') ||
+      a.includes('shahganj'))
+    return 'Agra';
+  if (a.includes('auto nagar') || a.includes('governorpet') || a.includes('bhavanipuram'))
+    return 'Vijayawada';
+  return 'Other';
+}
+
+const map = L.map('map').setView([20.5937, 78.9629], 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 18
+}).addTo(map);
+
+let allStations = [];
+let markers = [];
+let citySet = new Set();
+
+function renderMarkers(stations) {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  stations.forEach(s => {
+    const m = L.marker([s.lat, s.lng], { icon: makeIcon(s.vendor) });
+    const tagClass = s.vendor === 'Indofast' ? 'tag-indofast'
+                   : s.vendor === 'Yuma' ? 'tag-yuma'
+                   : s.vendor === 'Battery Smart' ? 'tag-battery'
+                   : 'tag-emo';
+    const distText = s.dist_km ? `<p>📍 ${s.dist_km} km from dark store</p>` : '';
+    m.bindPopup(`
+      <div class="popup-box">
+        <h3>⚡ ${s.area}</h3>
+        <span class="tag ${tagClass}">${s.vendor}</span>
+        ${distText}
+        <a class="dir-btn"
+           href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}"
+           target="_blank">🗺️ Get Directions</a>
+      </div>
+    `, { maxWidth: 240 });
+    m.addTo(map);
+    markers.push(m);
+  });
+  document.getElementById('count-badge').textContent = `${stations.length} stations`;
+}
+
+function applyFilters() {
+  const vendor = document.getElementById('vendor-filter').value;
+  const city   = document.getElementById('city-filter').value;
+  let filtered = allStations;
+  if (vendor) filtered = filtered.filter(s => s.vendor === vendor);
+  if (city)   filtered = filtered.filter(s => s.city === city);
+  renderMarkers(filtered);
+  if (city && CITY_CENTERS[city]) {
+    map.setView(CITY_CENTERS[city], 12);
+  }
+}
+
+fetch('/swap-stations')
+  .then(r => r.json())
+  .then(data => {
+    allStations = data.map(s => ({ ...s, city: detectCity(s.area) }));
+
+    // Build city dropdown
+    allStations.forEach(s => citySet.add(s.city));
+    const citySelect = document.getElementById('city-filter');
+    [...citySet].sort().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+
+    // Auto-apply URL params (vendor + city)
+    const params = new URLSearchParams(window.location.search);
+    const pVendor = params.get('vendor') || '';
+    const pCity   = params.get('city')   || '';
+    if (pVendor) document.getElementById('vendor-filter').value = pVendor;
+    if (pCity)   document.getElementById('city-filter').value   = pCity;
+
+    renderMarkers(allStations);
+    applyFilters();
+
+    document.getElementById('vendor-filter').addEventListener('change', applyFilters);
+    document.getElementById('city-filter').addEventListener('change', applyFilters);
+  })
+  .catch(e => {
+    document.getElementById('count-badge').textContent = 'Error loading';
+    console.error(e);
+  });
+</script>
+</body>
+</html>

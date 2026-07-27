@@ -12,6 +12,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 VENDORS_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "vendors.json"))
+SWAP_STATIONS_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "swap_stations.json"))
 
 app = FastAPI(title="EV Assist Landing Page")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -299,6 +300,20 @@ async def sync_vendors(request: Request):
         data = _j.load(f)
     save_vendors(data)
     return JSONResponse({'ok': True, 'msg': f'Synced {len(data)} vendors to Google Sheet'})
+
+
+@app.get("/swap-stations")
+def get_swap_stations():
+    try:
+        with open(SWAP_STATIONS_PATH, encoding="utf-8") as f:
+            return JSONResponse(json.load(f))
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/swap-map")
+def swap_map():
+    return FileResponse(os.path.join(STATIC_DIR, "swap_map.html"))
 
 
 @app.get("/vendor")

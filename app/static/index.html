@@ -479,6 +479,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f1f3f6;color:#fff;}
       <div class="detail-item"><div class="detail-item-label">Security Deposit</div><div class="detail-item-val" id="detailDeposit"></div></div>
       <div class="detail-item"><div class="detail-item-label">Refundable</div><div class="detail-item-val" id="detailRefund"></div></div>
     </div>
+    <a id="detailSwapBtn" href="/swap-map" target="_blank" style="display:none;width:100%;margin-bottom:10px;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #e65100;border-radius:12px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;box-sizing:border-box;">⚡ View Nearby Swap Stations</a>
     <button class="detail-book-btn" onclick="openDetailPopup()">Confirm &amp; Request</button>
   </div>
 </div>
@@ -944,6 +945,20 @@ function openDetail(v){
   document.getElementById('detailCharge').innerText=v['Charging/Swap']||'N/A';
   document.getElementById('detailDeposit').innerText=v['Security Deposit']||'NIL';
   document.getElementById('detailRefund').innerText=v['Refundable Deposit']||'NIL';
+  // Swap stations button — show only for swap vendors
+  var swapBtn=document.getElementById('detailSwapBtn');
+  var isSwap=(v['Charging/Swap']||'').toLowerCase().includes('swap')||(v['Battery Type']||'').toLowerCase().includes('swap')||(v['Battery Type']||'').toLowerCase().includes('yuma')||(v['Battery Type']||'').toLowerCase().includes('indofast')||(v['Battery Type']||'').toLowerCase().includes('sun mobility');
+  if(isSwap){
+    var swapVendorMap={'yulu':'Yuma','bounce':'Indofast','volt up':'Indofast','bykemania':'Indofast','bijliride':'Indofast','eveez':'Battery Smart','speedz':'Battery Smart','blive':'Indofast','steedgo':'Indofast','kinetic green':'Indofast','baaz':'Battery Smart','evify':'Indofast','yugo':'Indofast','zeway':'Indofast','e-went':'Battery Smart','emo':'EMO'};
+    var vkey=(v.Vendor||'').toLowerCase();
+    var swapVendor=swapVendorMap[vkey]||'';
+    var city=encodeURIComponent(v.City||'');
+    var url='/swap-map'+(swapVendor||city?'?':'')+(swapVendor?'vendor='+encodeURIComponent(swapVendor):'')+(swapVendor&&city?'&':'')+(city?'city='+city:'');
+    swapBtn.href=url;
+    swapBtn.style.display='block';
+  } else {
+    swapBtn.style.display='none';
+  }
   document.getElementById('detailDisclaimer').classList.remove('show');
   const page=document.getElementById('detailPage');
   page.style.display='block';
