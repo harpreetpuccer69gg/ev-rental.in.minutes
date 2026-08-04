@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 import os
 import json
@@ -15,8 +16,19 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 VENDORS_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "vendors.json"))
 SWAP_STATIONS_PATH = os.path.abspath(os.path.join(BASE_DIR, "..", "data", "swap_stations.json"))
 
+class CacheControlMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        path = request.url.path
+        if path.startswith("/static/"):
+            response.headers.setdefault("Cache-Control", "public, max-age=604800, immutable")
+        elif path == "/vendors":
+            response.headers.setdefault("Cache-Control", "public, max-age=60")
+        return response
+
 app = FastAPI(title="EV Assist Landing Page")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(CacheControlMiddleware)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Pre-load sheet connection at startup so it's ready when leads come in
