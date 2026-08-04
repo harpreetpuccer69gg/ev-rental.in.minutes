@@ -886,6 +886,23 @@
         "Image": "/static/images/bigo_ev.jpeg"
     },
     {
+        "City": "Delhi NCR",
+        "Vendor": "Motovolt",
+        "Status": "LIVE",
+        "Battery Type": "Swap",
+        "Make": "M7",
+        "Type": "Hi-Speed",
+        "Approx Rental/Week": "1477",
+        "Range (Km)": "80-90",
+        "Security Deposit": "2000",
+        "Refundable Deposit": "500",
+        "Charging/Swap": "Swap",
+        "SPOC": null,
+        "Phone": null,
+        "Email": null,
+        "Image": "/static/images/motovolt_m7.png"
+    },
+    {
         "City": "Kolkata",
         "Vendor": "Motovolt",
         "Status": "LIVE",

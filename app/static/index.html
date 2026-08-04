@@ -620,6 +620,10 @@ function updateCarousel(){
   const yuluImgMap={'bangalore':'/static/images/yulu_bangalore.jpeg','delhi ncr':'/static/images/yulu_delhi.jpeg','mumbai':'/static/images/yulu_mumbai.png','hyderabad':'/static/images/yulu_hyderabad.png','kolkata':'/static/images/yulu_kolkata.png','coimbatore':'/static/images/yulu_coimbatore.png','bhopal':'/static/images/yulu_bhopal.png','indore':'/static/images/yulu_indore.png','kochi':'/static/images/yulu_kochi.png','madurai':'/static/images/yulu_madurai.png','vadodara':'/static/images/yulu_vadodara.png','zirakpur':'/static/images/yulu_zirakpur.png'};
   const yuluSlideImg=slides[2].querySelector('img');
   if(yuluSlideImg)yuluSlideImg.src=yuluImgMap[city]||'/static/images/yulu_banner.jpeg';
+  const bounceSlideImg=slides[3].querySelector('img');
+  if(bounceSlideImg) bounceSlideImg.src=city==='delhi ncr' ? '/static/images/bounce_delhi_ncr.png' : '/static/images/bounce_poster.png';
+  const motovoltSlideImg=slides[4].querySelector('img');
+  if(motovoltSlideImg) motovoltSlideImg.src=city==='delhi ncr' ? '/static/images/motovolt_m7.png' : '/static/images/motovolt.png';
   slides[3].style.opacity=bounceCities.includes(city)?'1':'0';
   slides[3].style.pointerEvents=bounceCities.includes(city)?'auto':'none';
   slides[4].style.opacity=kineticCities.includes(city)?'1':'0';
