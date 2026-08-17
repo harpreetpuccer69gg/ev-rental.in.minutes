@@ -1733,7 +1733,7 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/kbe_c12.jpg"
+        "Image": "/static/images/kebu_one_m7.jpeg"
     },
     {
         "City": "Ayodhya",
@@ -1750,7 +1750,7 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/kbe_c12.jpg"
+        "Image": "/static/images/kebu_one_m7.jpeg"
     },
     {
         "City": "Kanpur",
@@ -1767,6 +1767,6 @@
         "SPOC": null,
         "Phone": null,
         "Email": null,
-        "Image": "/static/images/kbe_c12.jpg"
+        "Image": "/static/images/kebu_one_m7.jpeg"
     }
 ]
