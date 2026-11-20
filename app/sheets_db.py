@@ -83,14 +83,16 @@ def load_vendors_db() -> list:
     try:
         return _read_all("Vendors DB")
     except Exception as e:
-        print(f"[sheets_db] load_vendors_db error: {e}")
+        print(f"[sheets_db] load_vendors_db error: {type(e).__name__}: {e!r}")
         return []
 
 def save_vendors_db(data: list):
     try:
         _write_all("Vendors DB", data)
+        return True
     except Exception as e:
-        print(f"[sheets_db] save_vendors_db error: {e}")
+        print(f"[sheets_db] save_vendors_db error: {type(e).__name__}: {e!r}")
+        return False
 
 # ── Local JSON fallbacks ──────────────────────────────────────────────────────
 

@@ -50,7 +50,7 @@ async def startup_event():
         get_cached_sheet()
         print("✅ Google Sheet connection established at startup")
     except Exception as e:
-        print(f"❌ Startup sheet connection failed: {e}")
+        print(f"❌ Startup sheet connection failed: {type(e).__name__}: {e!r}")
     # Seed Vendors DB sheet if empty
     try:
         from app.sheets_db import load_vendors_db, save_vendors_db
@@ -59,8 +59,10 @@ async def startup_event():
             with open(VENDORS_PATH, encoding='utf-8') as f:
                 import json as _json
                 data = _json.load(f)
-            save_vendors_db(data)
-            print(f"Vendors DB seeded with {len(data)} entries from vendors.json")
+            if save_vendors_db(data):
+                print(f"Vendors DB seeded with {len(data)} entries from vendors.json")
+            else:
+                print("❌ Vendors DB seed failed; data was not saved to Google Sheets")
         else:
             print(f"Vendors DB already has {len(existing)} entries")
     except Exception as e:
