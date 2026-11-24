@@ -826,19 +826,22 @@ function submitOtherLead(){
   if(!name||!phone){alert('Please enter name and phone.');return;}
   if(phone.length!==10||!isValidPhone(phone)){alert('Please enter a valid 10-digit mobile number.');return;}
   const btn=event.target;
-  btn.innerText='Submitting...';
-  btn.disabled=true;
-  fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    name,phone,city:city||'Other',lang,budget:null,
-    vendor:'',make:'',type:'',rental:'',security_deposit:'',refundable_deposit:'',spoc_name:'',spoc_phone:'',image:''
-  })}).catch(()=>{}).finally(()=>{
-    btn.innerText='Notify Me';
-    btn.disabled=false;
-    const t=T[lang]||T.en;
-    document.getElementById('successTitle').innerText=t.successTitle;
-    document.getElementById('successMsg').innerHTML='We\'ll notify you when EVs are available in your city!';
-    document.getElementById('successOverlay').classList.add('show');
-  });
+  btn.innerText='Submitting...'; btn.disabled=true;
+  let sent=false;
+  const submit=(latitude='',longitude='')=>{
+    if(sent)return; sent=true;
+    fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name,phone,city:city||'Other',lang,budget:null,
+      vendor:'',make:'',type:'',rental:'',security_deposit:'',refundable_deposit:'',spoc_name:'',spoc_phone:'',image:'',latitude,longitude
+    })}).catch(()=>{}).finally(()=>{
+      btn.innerText='Notify Me'; btn.disabled=false;
+      document.getElementById('successTitle').innerText=(T[lang]||T.en).successTitle;
+      document.getElementById('successMsg').innerHTML=(T[lang]||T.en).successMsg;
+      document.getElementById('successOverlay').classList.add('show');
+    });
+  };
+  if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>submit(p.coords.latitude,p.coords.longitude),()=>submit(),{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+  else submit();
 }
 
 function renderResults(list,city){
@@ -918,7 +921,8 @@ function renderCards(){
       +'<div class="ev-meta-item">'+t.depositLabel+' <span>'+(v['Security Deposit']||'NIL')+'</span></div>'
       +'</div></div>'
       +'<div class="ev-card-bot"><div class="ev-price"><small>'+t.weeklyRental+'</small>'+(v['Approx Rental/Week']||'N/A')+'</div>'
-      +'<button class="book-btn" onclick="event.stopPropagation();openSheet('+idx+')">'+(t.bookNow||'Book Now')+'</button>'
+      +'<button class="book-btn" onclick="event.stopPropagation();openSheet('+idx+')"'+(v.Vendor==='Yulu'?' style="background:#002d62;color:#fff;"':'')+'>'+
+      (t.bookNow||'Book Now')+'</button>'
       +'</div></div>';
   });
   evList.innerHTML=html;
@@ -1056,34 +1060,45 @@ function submitDetailLead(){
   if(!name||!phone){alert('Please enter name and phone.');return;}
   if(phone.length!==10||!isValidPhone(phone)){alert('Please enter a valid 10-digit mobile number. Dummy numbers are not accepted.');return;}
   const btn=document.getElementById('dpopBtn');
-  btn.innerText='Submitting...';
-  btn.disabled=true;
+  btn.innerText='Submitting...'; btn.disabled=true;
   const v=selVendor;
-  fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    name,phone,city:v.City||'',lang,budget,
-    vendor:v.Vendor,make:v.Make,type:v.Type,
-    rental:v['Approx Rental/Week'],security_deposit:v['Security Deposit'],
-    refundable_deposit:v['Refundable Deposit'],
-    spoc_name:v.SPOC,spoc_phone:v.Phone,image:v.Image||''
-  })}).then(r=>r.json()).catch(()=>{}).finally(()=>{
-    btn.innerText='Confirm & Request';
-    btn.disabled=false;
-    closeDetailPopup();
-    closeDetail();
-    const t=T[lang]||T.en;
-    document.getElementById('successTitle').innerText=t.successTitle;
-    document.getElementById('successMsg').innerHTML=t.successMsg;
-    document.getElementById('successOverlay').classList.add('show');
-  });
+  let sent=false;
+  const submit=(latitude='',longitude='')=>{
+    if(sent)return; sent=true;
+    fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name,phone,city:v.City||'',lang,budget,
+      vendor:v.Vendor,make:v.Make,type:v.Type,
+      rental:v['Approx Rental/Week'],security_deposit:v['Security Deposit'],
+      refundable_deposit:v['Refundable Deposit'],
+      spoc_name:v.SPOC,spoc_phone:v.Phone,image:v.Image||'',latitude,longitude
+    })}).then(r=>r.json()).catch(()=>{}).finally(()=>{
+      btn.innerText='Confirm & Request'; btn.disabled=false;
+      closeDetailPopup(); closeDetail();
+      document.getElementById('successTitle').innerText=(T[lang]||T.en).successTitle;
+      document.getElementById('successMsg').innerHTML=(T[lang]||T.en).successMsg;
+      document.getElementById('successOverlay').classList.add('show');
+    });
+  };
+  if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>submit(p.coords.latitude,p.coords.longitude),()=>submit(),{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+  else submit();
 }
 
 function shareEV(){
   const v=selVendor;
   if(!v)return;
-  const text=(v.Make||'EV')+' - '+(v.Vendor||'')+' | Weekly: '+(v['Approx Rental/Week']||'N/A')+' | City: '+(v.City||'')+' | Book at: https://ev-whatsapp-bot-c7sg.onrender.com';
-  if(navigator.share){navigator.share({title:'EV Rental - '+(v.Vendor||''),text:text,url:'https://ev-rental-in-minutes.onrender.com'}).catch(()=>{});}
-  else{navigator.clipboard&&navigator.clipboard.writeText(text).then(()=>alert('Copied to clipboard!'));}
+  const text='Check out this EV rental!\n'+
+    (v.Make||'EV')+' - '+(v.Vendor||'')+' | '+(v.City||'')+
+    '\nWeekly: '+(v['Approx Rental/Week']||'N/A')+
+    '\nRange: '+(v['Range (Km)']||'N/A')+' km'+
+    '\nDeposit: '+(v['Security Deposit']||'NIL')+
+    '\nBook here: https://ev-rental-in-minutes.onrender.com';
+  if(navigator.share){
+    navigator.share({title:'EV Rental - Flipkart Minutes',text:text});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>alert('Details copied! Share with your friends.'));
+  }
 }
+
 function yuluClick(){
   const city=(document.getElementById('citySelect').value||'').toLowerCase();
   const yulu=vendors.find(v=>v.Vendor==='Yulu'&&(v.City||'').toLowerCase()===city)||vendors.find(v=>v.Vendor==='Yulu');
@@ -1136,23 +1151,35 @@ function submitLead(){
   const btn=document.getElementById('confirmBtn');
   btn.innerText='Submitting...';
   btn.disabled=true;
-  const timeout2=new Promise((_,reject)=>setTimeout(()=>reject('timeout'),8000));
-  fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    name,phone,city:document.getElementById('citySelect').value,lang,budget,
-    vendor:selVendor&&selVendor.Vendor,make:selVendor&&selVendor.Make,type:selVendor&&selVendor.Type,
-    rental:selVendor&&selVendor['Approx Rental/Week'],security_deposit:selVendor&&selVendor['Security Deposit'],
-    refundable_deposit:selVendor&&selVendor['Refundable Deposit'],
-    spoc_name:selVendor&&selVendor.SPOC,spoc_phone:selVendor&&selVendor.Phone,image:(selVendor&&selVendor.Image)||''
-  })}).then(r=>r.json()).catch(()=>{}).finally(()=>{
-    btn.innerText='Confirm & Request';
-    btn.disabled=false;
-    closeSheet();
-    document.getElementById('resultsArea').innerHTML='';
-    const t=T[lang]||T.en;
-    document.getElementById('successTitle').innerText=t.successTitle;
-    document.getElementById('successMsg').innerHTML=t.successMsg;
-    document.getElementById('successOverlay').classList.add('show');
-  });
+  let submitted=false;
+  const sendLead=(latitude='',longitude='')=>{
+    if(submitted)return;
+    submitted=true;
+    fetch('/submit-lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      name,phone,city:document.getElementById('citySelect').value,lang,budget,
+      vendor:selVendor&&selVendor.Vendor,make:selVendor&&selVendor.Make,type:selVendor&&selVendor.Type,
+      rental:selVendor&&selVendor['Approx Rental/Week'],security_deposit:selVendor&&selVendor['Security Deposit'],
+      refundable_deposit:selVendor&&selVendor['Refundable Deposit'],
+      spoc_name:selVendor&&selVendor.SPOC,spoc_phone:selVendor&&selVendor.Phone,image:(selVendor&&selVendor.Image)||'',
+      latitude,longitude
+    })}).then(r=>r.json()).catch(()=>{}).finally(()=>{
+      btn.innerText='Confirm & Request';
+      btn.disabled=false;
+      closeSheet();
+      document.getElementById('resultsArea').innerHTML='';
+      const t=T[lang]||T.en;
+      document.getElementById('successTitle').innerText=t.successTitle;
+      document.getElementById('successMsg').innerHTML=t.successMsg;
+      document.getElementById('successOverlay').classList.add('show');
+    });
+  };
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>sendLead(pos.coords.latitude,pos.coords.longitude),
+      ()=>sendLead(),
+      {enableHighAccuracy:true,timeout:8000,maximumAge:60000}
+    );
+  }else{sendLead();}
 }
 
 setLang('en');

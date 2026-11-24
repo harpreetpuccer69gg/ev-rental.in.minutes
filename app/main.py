@@ -97,6 +97,8 @@ async def submit_lead(request: Request):
             "lang": data.get("lang", "en"),
             "budget": data.get("budget", ""),
             "licence": data.get("licence", True),
+            "latitude": data.get("latitude", ""),
+            "longitude": data.get("longitude", ""),
             "chosen": {
                 "Vendor": data.get("vendor", ""),
                 "Make": data.get("make", ""),
